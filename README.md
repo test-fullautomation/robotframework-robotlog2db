@@ -32,15 +32,15 @@ tool is operating system independent and only works with Python 3.
 
 RobotResults2DB is not available on [PyPI](https://pypi.org/) now.
 
-But you can install this package directly from the BIOS repository as
+But you can install this package directly from Github repository as
 below:
 
-    pip install git+ssh://git@sourcecode.socialcoding.bosch.com:7999/robfw/robotframework-testresultwebapptool.git
+    pip install git+https://github.com/test-fullautomation/robotframework-testresultwebapptool.git
 
 Or you can clone sourcecode to your local directory then install this
 package with below steps:
 
-    git clone ssh://git@sourcecode.socialcoding.bosch.com:7999/robfw/robotframework-testresultwebapptool.git
+    git clone https://github.com/test-fullautomation/robotframework-testresultwebapptool.git
     cd robotframework-testresultwebapptool
     python setup.py install
 
