@@ -1,4 +1,4 @@
-.. Copyright 2020-2022 Robert Bosch Car Multimedia GmbH
+.. Copyright 2020-2022 Robert Bosch GmbH
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
    limitations under the License.
 
 RobotResults2DB tool's Documentation
-=====================================
+====================================
 
 Introduction:
 -------------
@@ -149,7 +149,7 @@ Suite/File metadata and Testcase information:
    :alt: Datatable view
 
 Notes:
---------------
+------
 When above settings is missing, that leads to the missing information in 
 the *output.xml*.
 

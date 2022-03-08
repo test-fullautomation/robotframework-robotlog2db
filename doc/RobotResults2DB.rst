@@ -1,4 +1,4 @@
-.. Copyright 2020-2022 Robert Bosch Car Multimedia GmbH
+.. Copyright 2020-2022 Robert Bosch GmbH
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -13,17 +13,17 @@
    limitations under the License.
 
 RobotResults2DB package
-========================
+=======================
 
 
 Module contents
 ---------------
-.. automodule:: CDataBase
+.. automodule:: RobotResults2DB.CDataBase
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: robot2db
+.. automodule:: RobotResults2DB.robot2db
    :members:
    :undoc-members:
    :show-inheritance:
