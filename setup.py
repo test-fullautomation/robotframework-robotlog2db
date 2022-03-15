@@ -60,6 +60,9 @@
 #
 # --------------------------------------------------------------------------------------------------------------
 #
+# 11.03.2022 / XC-CT/ECA3-Queckenstedt
+# 'package_dir' added
+#
 # 28.02.2022 / XC-CT/ECA3-Queckenstedt
 # "sdist bdist_wheel" maintenance: some steps moved from inside 'ExtendedInstallCommand' to outside
 #
@@ -111,7 +114,7 @@ class ExtendedInstallCommand(install):
             print()
             print(COLBY + "Extended setup step 4/5: install.run(self)") # creates the build folder .\build
             print()
-            install.run(self) # TODO: What does install.run(self) return? How to realize error handling?
+            install.run(self)
             print()
             if 'bdist_wheel' in listCmdArgs:
                 print(COLBY + "Extended setup step 5/5: Add html documentation to local wheel folder inside build")
@@ -210,7 +213,8 @@ setuptools.setup(
     long_description = long_description,
     long_description_content_type = str(oRepositoryConfig.Get('sLongDescriptionContentType')),
     url = str(oRepositoryConfig.Get('sURL')),
-    packages = [str(oRepositoryConfig.Get('sPackageName')), ],
+    packages = [str(oRepositoryConfig.Get('sImportName')),],
+    package_dir = {str(oRepositoryConfig.Get('sPackageName')) : str(oRepositoryConfig.Get('sImportName'))},
     classifiers = [
         str(oRepositoryConfig.Get('sProgrammingLanguage')),
         str(oRepositoryConfig.Get('sLicence')),
@@ -223,11 +227,9 @@ setuptools.setup(
     cmdclass={
         'install': ExtendedInstallCommand,
     },
-    install_requires=['colorama', 'mysqlclient'], # public package dependencies from PyPI
+    install_requires = oRepositoryConfig.Get('arInstallRequires'), # public package dependencies from PyPI
     entry_points={
-        'console_scripts': [
-            'RobotResults2DB = RobotResults2DB.__main__:RobotResults2DB',
-        ],
+        'console_scripts': oRepositoryConfig.Get('arConsoleScripts'),
     }
 )
 
