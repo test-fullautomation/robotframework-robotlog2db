@@ -229,9 +229,7 @@ setuptools.setup(
     },
     install_requires = oRepositoryConfig.Get('arInstallRequires'), # public package dependencies from PyPI
     entry_points={
-        'console_scripts': [
-            'RobotResults2DB = RobotResults2DB.__main__:RobotResults2DB',
-        ],
+        'console_scripts': oRepositoryConfig.Get('arConsoleScripts'),
     }
 )
 

@@ -105,6 +105,7 @@ class CConfig():
         self.__dictConfig['sIntendedAudience']           = "Intended Audience :: Developers"
         self.__dictConfig['sTopic']                      = "Topic :: Software Development"
         self.__dictConfig['arInstallRequires']           = ['sphinx','pypandoc','colorama','mysqlclient']
+        self.__dictConfig['arConsoleScripts']            = ['RobotResults2DB = RobotResults2DB.robot2db:RobotResults2DB']
 
 
         # 2. certain folder and executables (things that requires computation)
