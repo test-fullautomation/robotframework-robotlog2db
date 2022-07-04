@@ -244,5 +244,5 @@ limitations under the License.
 .. _Mai Dinh Nam Son: mailto:Son.MaiDinhNam@vn.bosch.com
 .. _Tran Hoang Nguyen: mailto:Nguyen.TranHoang@vn.bosch.com
 .. _Holger Queckenstedt: mailto:Holger.Queckenstedt@de.bosch.com
-.. _RobotResults2DB tool’s Documentation: https://github.com/test-fullautomation/robotframework-testresultwebapptool/blob/develop/doc/_build/latex/RobotResults2DB.pdf
+.. _RobotResults2DB tool’s Documentation: https://github.com/test-fullautomation/robotframework-testresultwebapptool/blob/develop/RobotResults2DB/RobotResults2DB.pdf
 .. _RobotResults2DB Issues: https://github.com/test-fullautomation/robotframework-testresultwebapptool/issues
