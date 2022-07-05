@@ -50,8 +50,8 @@ import json
 from robot.api import ExecutionResult
 from RobotResults2DB.CDataBase import CDataBase
 
-VERSION      = "1.2.0"
-VERSION_DATE = "04.07.2022"
+VERSION      = "1.2.1"
+VERSION_DATE = "05.07.2022"
 
 DRESULT_MAPPING = {
    "PASS":  "Passed",
