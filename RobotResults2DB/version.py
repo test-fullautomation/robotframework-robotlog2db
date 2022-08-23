@@ -1,4 +1,6 @@
-#  Copyright 2020-2022 Robert Bosch Car Multimedia GmbH
+# **************************************************************************************************************
+#
+#  Copyright 2020-2022 Robert Bosch GmbH
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -11,13 +13,10 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-"""
-RobotResults2DB package provides an interface to import robot result(s)
-from output.xml result file to TestResultWebApp database.
-
-TestResultWebApp is available in Github as below repo:
-https://github.com/test-fullautomation/TestResultWebApp
-"""
-from .robot2db import RobotResults2DB, Logger
-from .version import VERSION
-from .CDataBase import CDataBase
+#
+# **************************************************************************************************************
+#
+# Version and date of RobotResults2DB
+#
+VERSION      = "1.2.1"
+VERSION_DATE = "22.08.2022"
