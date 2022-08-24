@@ -173,7 +173,7 @@ tool.
 To understand more detail about the tool\'s features, parameters and how
 Robot testcase information will be displayed on TestResultWebApp, please
 refer to [RobotResults2DB tool's
-Documentation](https://github.com/test-fullautomation/robotframework-testresultwebapptool/blob/develop/doc/_build/latex/RobotResults2DB.pdf).
+Documentation](https://github.com/test-fullautomation/robotframework-testresultwebapptool/blob/develop/RobotResults2DB/RobotResults2DB.pdf).
 
 ## Feedback
 

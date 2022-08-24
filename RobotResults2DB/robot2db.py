@@ -82,7 +82,7 @@ CONFIG_SCHEMA = {
 
 class Logger():
    """
-      Logger class for logging message
+Logger class for logging message.
    """
    output_logfile = None
    output_console = True
@@ -99,19 +99,37 @@ class Logger():
    @classmethod
    def config(cls, output_console=True, output_logfile=None, indent=0, dryrun=False):
       """
-      Configure Logger class.
+Configure Logger class.
 
-      Args:
-         output_console : write message to console output.
+**Arguments:**
 
-         output_logfile : path to log file output.
+* ``output_console``
 
-         indent : offset indent.
+   / *Condition*: optional / *Type*: bool / *Default*: True /
 
-         dryrun : if set, a prefix as 'dryrun' is added for all messages.
+   Write message to console output.
 
-      Returns:
-         None.
+* ``output_logfile``
+
+   / *Condition*: optional / *Type*: str / *Default*: None /
+
+   Path to log file output.
+
+* ``indent``
+
+   / *Condition*: optional / *Type*: int / *Default*: 0 /
+
+   Offset indent.
+
+* ``dryrun``
+
+   / *Condition*: optional / *Type*: bool / *Default*: True /
+
+   If set, a prefix as 'dryrun' is added for all messages.
+
+**Returns:**
+
+(*no returns*)
       """
       cls.output_console = output_console
       cls.output_logfile = output_logfile
@@ -122,17 +140,31 @@ class Logger():
    @classmethod
    def log(cls, msg='', color=None, indent=0):
       """
-      Write log message to console/file output.
+Write log message to console/file output.
 
-      Args:
-         msg : message to write to output.
+**Arguments:**
 
-         color : color style for the message.
+* ``msg``
 
-         indent : offset indent.
+   / *Condition*: optional / *Type*: str / *Default*: '' /
+
+   Message which is written to output.
+
+* ``color``
+
+   / *Condition*: optional / *Type*: str / *Default*: None /
+
+   Color style for the message.
+
+* ``indent``
+
+   / *Condition*: optional / *Type*: int / *Default*: 0 /
+
+   Offset indent.
       
-      Returns:
-         None.
+**Returns:**
+
+(*no returns*)
       """
       if color==None:
          color = cls.color_normal
@@ -146,28 +178,42 @@ class Logger():
    @classmethod
    def log_warning(cls, msg):
       """
-      Write warning message to console/file output.
+Write warning message to console/file output.
       
-      Args:
-         msg : message to write to output.
+**Arguments:**
 
-      Returns:
-         None.
+* ``msg``
+
+   / *Condition*: required / *Type*: str /
+
+   Warning message which is written to output.
+
+**Returns:**
+
+(*no returns*)
       """
       cls.log(cls.prefix_warn+str(msg), cls.color_warn)
 
    @classmethod
    def log_error(cls, msg, fatal_error=False):
       """
-      Write error message to console/file output.
+Write error message to console/file output.
 
-      Args:
-         msg : message to write to output.
+* ``msg``
 
-         fatal_error : if set, tool will terminate after logging error message.
+   / *Condition*: required / *Type*: str /
 
-      Returns:
-         None.
+   Error message which is written to output.
+
+* ``fatal_error``
+
+   / *Condition*: optional / *Type*: bool / *Default*: False /
+
+   If set, tool will terminate after logging error message.
+
+**Returns:**
+
+(*no returns*)
       """
       prefix = cls.prefix_error
       if fatal_error:
@@ -180,37 +226,69 @@ class Logger():
 
 def is_valid_uuid(uuid_to_test, version=4):
    """
-   Verify the given UUID is valid or not.
+Verify the given UUID is valid or not.
 
-   Args:
-      uuid_to_test : UUID to be verified.
+**Arguments:**
 
-      version (optional): UUID version.
+* ``uuid_to_test``
 
-   Returns:
-      True if the given UUID is valid.
+   / *Condition*: required / *Type*: str /
+   
+   UUID to be verified.
+
+* ``version``
+
+   / *Condition*: optional / *Type*: int / *Default*: 4 /
+   
+   UUID version.
+
+**Returns:**
+
+* ``bValid``
+
+   / *Type*: bool /
+
+   True if the given UUID is valid.
    """
+   bValid = False
    try:
       uuid_obj = uuid.UUID(uuid_to_test, version=version)
    except:
-      return False
+      return bValid
    
-   return str(uuid_obj) == uuid_to_test 
+   if str(uuid_obj) == uuid_to_test:
+      bValid = True
+   
+   return bValid
 
 def get_from_tags(lTags, reInfo):
    """
-   Extract testcase information from tags.
+Extract testcase information from tags.
 
-   Example: 
-      TCID-xxxx, FID-xxxx, ...
+Example: 
+   ``TCID-xxxx``, ``FID-xxxx``, ...
 
-   Args:
-      lTags : list of tag information.
+**Arguments:**
 
-      reInfo : regex to get the expectated info (ID) from tag info.
+* ``lTags``
 
-   Returns:
-      lInfo : list of expected information (ID)
+   / *Condition*: required / *Type*: list /
+
+   List of tag information.
+
+* ``reInfo``
+
+   / *Condition*: required / *Type*: str /
+
+   Regex to get the expectated info (ID) from tag info.
+
+**Returns:**
+
+* ``lInfo``
+
+   / *Type*: list /
+   
+   List of expected information (ID)
    """
    lInfo = []
    if len(lTags) != 0:
@@ -222,20 +300,30 @@ def get_from_tags(lTags, reInfo):
 
 def get_branch_from_swversion(sw_version):
    """
-   Get branch name from software version information.
+Get branch name from software version information.
 
-   Convention of branch information in suffix of software version:
-      - All software version with .0F is the main/freature branch. 
-        The leading number is the current year. E.g. 17.0F03
-      - All software version with .1S, .2S, ... is a stabi branch. 
-        The leading number is the year of branching out for stabilization.
-        The number before "S" is the order of branching out in the year.
+Convention of branch information in suffix of software version:
+   - All software version with .0F is the main/freature branch. 
+      The leading number is the current year. E.g. ``17.0F03``
+   - All software version with ``.1S``, ``.2S``, ... is a stabi branch. 
+      The leading number is the year of branching out for stabilization.
+      The number before "S" is the order of branching out in the year.
    
-   Args:
-      sw_version : software version.
+**Arguments:**
 
-   Returns:
-      branch_name : branch name.
+* ``sw_version``6
+
+   / *Condition*: required / *Type*: str /
+   
+   Software version.
+
+**Returns:**
+
+* ``branch_name``
+
+   / *Type*: str /
+
+   Branch name.
    """
    branch_name = "main"
    version_number=re.findall("(\d+\.)(\d+)([S,F])\d+",sw_version.upper())
@@ -249,36 +337,52 @@ def get_branch_from_swversion(sw_version):
 
 def format_time(stime):
    """
-   Format the given time string to TestResultWebApp's format for importing to db.
+Format the given time string to TestResultWebApp's format for importing to db.
 
-   Args:
-      stime : string of time.
+**Arguments:**
 
-   Returns:
-      TestResultWebApp's time format.
+* ``testcstimeaseID``
+
+   / *Condition*: required / *Type*: str /
+
+   String of time.
+
+**Returns:**
+
+   / *Type*: str /
+
+   TestResultWebApp's time as format ``%Y-%m-%d %H:%M:%S``.
    """
-   return stime[0:4]+"-"+stime[4:6]+"-"+stime[6:]
+
+   return 
 
 def __process_commandline():
    """
-   process provided argument(s) from command line.
+Process provided argument(s) from command line.
 
-   Avalable arguments in command line:
-      - `-v` : tool version information.
-      - `outputfile` : path to the output file or directory with output files to be imported.
-      - `server` : server which hosts the database (IP or URL).
-      - `user` : user for database login.
-      - `password` : password for database login.
-      - `database` : database name.
-      - `-recursive` : if True, then the path is searched recursively for log files to be imported.
-      - `-dryrun` : if True, then just check the RQM authentication and show what would be done.
-      - `-UUID` : UUID used to identify the import and version ID on TestResultWebApp.
-      - `-variant` : variant name to be set for this import.
-      - `-versions` : metadata: Versions (Software;Hardware;Test) to be set for this import.
-      - `-config` : configuration json file for component mapping information.
+Avalable arguments in command line:
+   - `-v` : tool version information.
+   - `outputfile` : path to the output file or directory with output files to be imported.
+   - `server` : server which hosts the database (IP or URL).
+   - `user` : user for database login.
+   - `password` : password for database login.
+   - `database` : database name.
+   - `-recursive` : if True, then the path is searched recursively for log files to be imported.
+   - `-dryrun` : if True, then just check the RQM authentication and show what would be done.
+   - `-UUID` : UUID used to identify the import and version ID on TestResultWebApp.
+   - `-variant` : variant name to be set for this import.
+   - `-versions` : metadata: Versions (Software;Hardware;Test) to be set for this import.
+   - `-config` : configuration json file for component mapping information.
 
-   Returns:
-      ArgumentParser object.
+**Arguments:**
+
+(*no arguments*)
+
+**Returns:**
+
+   / *Type*: `ArgumentParser` object /
+
+   ArgumentParser object.
    """
    cmdlineparser=argparse.ArgumentParser(prog="RobotResults2DB (XMLoutput to database importer)", 
                                          description="RobotResults2DB imports XML output files (default: output.xml) " + \
@@ -311,18 +415,31 @@ def __process_commandline():
 
 def process_suite_metadata(suite, default_metadata=DEFAULT_METADATA):
    """
-   Try to find metadata information from all suite levels.
-   
-   Note:
-      Metadata at top suite level has a highest priority.
-   
-   Args:
-      suite :  Robot suite object.
+Try to find metadata information from all suite levels.
 
-      default_metadata: initial Metadata information for updating.
+Metadata at top suite level has a highest priority.
+   
+**Arguments:**
 
-   Returns:
-      dMetadata : dictionary of Metadata information.
+* ``suite``
+
+   / *Condition*: required / *Type*: `TestSuite` object /
+
+   Robot suite object.
+
+* ``default_metadata``
+
+   / *Condition*: optional / *Type*: dict / *Default*: DEFAULT_METADATA /
+
+   Initial Metadata information for updating.
+
+**Returns:**
+
+* ``dMetadata``
+
+   / *Type*: dict /
+
+   Dictionary of Metadata information.
    """
    dMetadata = dict(default_metadata)
    # Try to get metadata from first child of suite - multiple log files
@@ -336,15 +453,29 @@ def process_suite_metadata(suite, default_metadata=DEFAULT_METADATA):
 
 def process_metadata(metadata, default_metadata=DEFAULT_METADATA):
    """
-   Extract metadata from suite result bases on DEFAULT_METADATA
+Extract metadata from suite result bases on DEFAULT_METADATA.
 
-   Args:
-      metadata :  Robot metadata object.
+**Arguments:**
 
-      default_metadata: initial Metadata information for updating.
+* ``metadata``
 
-   Returns:
-      dMetadata : dictionary of Metadata information.   
+   / *Condition*: required / *Type*: dict /
+
+   Robot metadata object.
+
+* ``default_metadata``
+
+   / *Condition*: optional / *Type*: dict / *Default*: DEFAULT_METADATA /
+
+   Initial Metadata information for updating.
+
+**Returns:**
+
+* ``dMetadata``
+   
+   / *Type*: dict /
+   
+   Dictionary of Metadata information.  
    """
    dMetadata = dict(default_metadata)
    for key in dMetadata.keys():
@@ -356,21 +487,45 @@ def process_metadata(metadata, default_metadata=DEFAULT_METADATA):
 
 def process_suite(db, suite, _tbl_test_result_id, root_metadata, dConfig=None):
    """
-   Process to the lowest suite level (test file):
-      - Create new file and its header information
-      - Then, process all child test cases
+Process to the lowest suite level (test file):
+   - Create new file and its header information
+   - Then, process all child test cases
 
-   Args:
-      suite : Robot suite object.
+**Arguments:**
 
-      _tbl_test_result_id : UUID of test result for importing.
+* ``db``
 
-      root_metadata : metadata information.
+   / *Condition*: required / *Type*: `CDataBase` object/
 
-      dConfig: configuration data which is parsed from given json configuration file.
+   CDataBase object.
 
-   Returns:
-      None. 
+* ``suite``
+
+   / *Condition*: required / *Type*: `TestSuite` object/
+
+   Robot suite object.
+
+* ``_tbl_test_result_id``
+
+   / *Condition*: required / *Type*: str/
+
+   UUID of test result for importing.
+
+* ``root_metadata``
+
+   / *Condition*: required / *Type*: dict/
+
+   Metadata information from root level.
+
+* ``dConfig``
+
+   / *Condition*: required / *Type*: dict / *Default*: None /
+
+   Configuration data which is parsed from given json configuration file.
+
+**Returns:**
+
+(*no returns*)  
    """
    if len(list(suite.suites)) > 0:
       for subsuite in suite.suites:
@@ -503,23 +658,49 @@ def process_suite(db, suite, _tbl_test_result_id, root_metadata, dConfig=None):
 
 def process_test(db, test, file_id, test_result_id, metadata_info, test_number):
    """
-   Process test case data and create new test case record.
+Process test case data and create new test case record.
 
-   Args:
-      db :  database object.
+**Arguments:**
 
-      test : Robot test object.
+* ``db``
 
-      file_id : file ID for mapping.
+   / *Condition*: required / *Type*: `CDataBase` object/
 
-      test_result_id : test result ID for mapping.
+   CDataBase object.
 
-      metadata_info : metadata information.
+* ``test``
 
-      test_number : order of test case in file.
+   / *Condition*: required / *Type*: `TestCase` object/
 
-   Returns:
-      None.
+   Robot test object.
+
+* ``file_id``
+
+   / *Condition*: required / *Type*: int/
+
+   File ID for mapping.
+
+* ``test_result_id``
+
+   / *Condition*: required / *Type*: str/
+
+   Test result ID for mapping.
+
+* ``metadata_info``
+
+   / *Condition*: required / *Type*: dict/
+
+   Metadata information.
+
+* ``test_number``
+
+   / *Condition*: required / *Type*: int/
+
+   Order of test case in file.
+
+**Returns:**
+
+(*no returns*)
    """
    _tbl_case_name  = truncate_string(test.name, 255)
    _tbl_case_issue = ";".join(get_from_tags(test.tags, "ISSUE-(.+)"))
@@ -568,9 +749,10 @@ def process_test(db, test, file_id, test_result_id, metadata_info, test_number):
 
 def process_config_file(config_file):
    """
-   Parse information from configuration file:
-      - `component`:
-        ::
+Parse information from configuration file:
+   - ``component``:
+      
+      .. code:: python
 
          {
             "component" : {
@@ -582,15 +764,26 @@ def process_config_file(config_file):
                ]
             }
          }
-         Then all testcase which its path contain componentA/path/to/testcase 
-         will be  belong to componentA, ...
-      - `variant`, `version_sw`: configuration file has low priority than command line
 
-   Args:
-      config_file : path to configuration file.
+      Then all testcase which its path contain ``componentA/path/to/testcase`` 
+      will be belong to ``componentA``, ...
+   - ``variant``, ``version_sw``: configuration file has low priority than command line.
 
-   Returns:
-      dConfig : configuration object.
+**Arguments:**
+
+* ``config_file``
+
+   / *Condition*: required / *Type*: str /
+
+   Path to configuration file.
+
+**Returns:**
+
+* ``dConfig``
+
+   / *Type*: dict /
+   
+   Configuration object.
    """
 
    with open(config_file) as f:
@@ -601,12 +794,13 @@ def process_config_file(config_file):
       Logger.log_error("Error in configuration file '%s'."%config_file, fatal_error=True)
    return dConfig
 
-def validate_config(dConfig, sSchema=CONFIG_SCHEMA, bExitOnFail=True):
+def validate_config(dConfig, dSchema=CONFIG_SCHEMA, bExitOnFail=True):
    """
-   Validate the json configuration base on given schema.
+Validate the json configuration base on given schema.
 
-   Default schema just supports "component", "variant" and "version_sw"
-   ::
+Default schema just supports ``component``, ``variant`` and ``version_sw``.
+   
+   .. code:: python
 
       CONFIG_SCHEMA = {
          "component" : [str, dict],
@@ -614,30 +808,48 @@ def validate_config(dConfig, sSchema=CONFIG_SCHEMA, bExitOnFail=True):
          "version_sw": str,
       }
 
-   Args:
-      dConfig : json configuration object to be verified.
+**Arguments:**
 
-      sSchema (optional): schema for the validation. `CONFIG_SCHEMA` is used as default.
+* ``dConfig``
 
-      bExitOnFail (optional): If True, exit tool in case the validation is fail.
+   / *Condition*: required / *Type*: dict /
 
-   Returns:
-      bValid : True if the given json configuration data is valid.
+   Json configuration object to be verified.
+
+* ``dSchema``
+
+   / *Condition*: optional / *Type*: dict / *Default*: CONFIG_SCHEMA /
+
+   Schema for the validation.
+
+* ``bExitOnFail``
+
+   / *Condition*: optional / *Type*: bool / *Default*: True /
+
+   If True, exit tool in case the validation is fail.
+
+**Returns:**
+
+* ``bValid``
+
+   / *Type*: bool /
+
+   True if the given json configuration data is valid.
    """
    bValid = True
    for key in dConfig:
-      if key in sSchema.keys():
+      if key in dSchema.keys():
          # List of support types
-         if isinstance(sSchema[key], list):
-            if type(dConfig[key]) not in sSchema[key]:
+         if isinstance(dSchema[key], list):
+            if type(dConfig[key]) not in dSchema[key]:
                bValid = False
          # Fixed type
          else:
-            if type(dConfig[key]) != sSchema[key]:
+            if type(dConfig[key]) != dSchema[key]:
                bValid = False
 
          if not bValid:
-            Logger.log_error("Value of '%s' has wrong type '%s' in configuration json file."%(key,type(sSchema[key])), fatal_error=bExitOnFail)
+            Logger.log_error("Value of '%s' has wrong type '%s' in configuration json file."%(key,type(dSchema[key])), fatal_error=bExitOnFail)
 
       else:
          bValid = False
@@ -647,13 +859,22 @@ def validate_config(dConfig, sSchema=CONFIG_SCHEMA, bExitOnFail=True):
 
 def normailze_path(sPath):
    """
-   Normalize path file.
+Normalize path file.
 
-   Args:
-      sPath : string of path file to be normalized.
+**Arguments:**
 
-   Returns:
-      sNPath : string of normalized path file.
+* ``sPath``
+
+   / *Condition*: required / *Type*: str /
+
+   String of path file to be normalized.
+
+**sNPath:**
+   
+   
+   / *Type*: str /
+   
+   String of normalized path file.
    """
    if sPath.strip()=='':
       return ''
@@ -668,17 +889,35 @@ def normailze_path(sPath):
 
 def truncate_string(sString, iMaxLength, sEndChars='...'):
    """
-   Truncate input string before importing to database.
+Truncate input string before importing to database.
 
-   Args:
-      sString : input string for truncation.
+**Arguments:**
 
-      iMaxLength : max length of string to be allowed. 
+* ``sString``
 
-      sEndChars (optional): end characters which are added to end of truncated string.
+   / *Condition*: required / *Type*: str /
 
-   Returns:
-      content : string after truncation.
+   Input string for truncation.
+
+* ``iMaxLength``
+
+   / *Condition*: required / *Type*: int /
+
+   Max length of string to be allowed. 
+
+* ``sEndChars``
+
+/ *Condition*: optional / *Type*: str / *Default*: '...' /
+
+   End characters which are added to end of truncated string.
+
+**Returns:**
+
+* ``content``
+
+   / *Type*: str /
+
+   String after truncation.
    """
    content = str(sString)
    if isinstance(iMaxLength, int):
@@ -691,31 +930,37 @@ def truncate_string(sString, iMaxLength, sEndChars='...'):
 
 def RobotResults2DB(args=None):
    """
-   Import robot results from `output.xml` to TestResultWebApp's database
+Import robot results from ``output.xml`` to TestResultWebApp's database.
 
-   Flow to import Robot results to database: 
-      1. Process provided arguments from command line
-      2. Connect to database
-      3. Parse Robot results
-      4. Import results into database 
-      5. Disconnect from database
+Flow to import Robot results to database: 
+   1. Process provided arguments from command line.
+   2. Connect to database.
+   3. Parse Robot results.
+   4. Import results into database.
+   5. Disconnect from database.
 
-   Args:
-      args : Argument parser object:
-         - `outputfile` : path to the output file or directory with output files to be imported.
-         - `server` : server which hosts the database (IP or URL).
-         - `user` : user for database login.
-         - `password` : password for database login.
-         - `database` : database name.
-         - `recursive` : if True, then the path is searched recursively for log files to be imported.
-         - `dryrun` : if True, then just check the RQM authentication and show what would be done.
-         - `UUID` : UUID used to identify the import and version ID on TestResultWebApp.
-         - `variant` : variant name to be set for this import.
-         - `versions` : metadata: Versions (Software;Hardware;Test) to be set for this import.
-         - `config` : configuration json file for component mapping information.
+**Arguments:**
 
-   Returns:
-      None.
+* ``args``
+
+   / *Condition*: required / *Type*: `ArgumentParser` object /
+
+   Argument parser object which contains:
+      - `outputfile` : path to the output file or directory with output files to be imported.
+      - `server` : server which hosts the database (IP or URL).
+      - `user` : user for database login.
+      - `password` : password for database login.
+      - `database` : database name.
+      - `recursive` : if True, then the path is searched recursively for log files to be imported.
+      - `dryrun` : if True, then just check the RQM authentication and show what would be done.
+      - `UUID` : UUID used to identify the import and version ID on TestResultWebApp.
+      - `variant` : variant name to be set for this import.
+      - `versions` : metadata: Versions (Software;Hardware;Test) to be set for this import.
+      - `config` : configuration json file for component mapping information.
+
+**Returns:**
+
+(*no returns*)
    """
    # 1. process provided arguments from command line as default
    args = __process_commandline()

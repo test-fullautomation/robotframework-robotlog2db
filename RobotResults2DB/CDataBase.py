@@ -32,11 +32,10 @@
 import MySQLdb as db
 
 class CDataBase(object):
-   '''
-   CDataBase class play a role as mysqlclient and provide methods to interact  
-   with TestResultWebApp's database.
-
-   '''
+   """
+CDataBase class play a role as mysqlclient and provide methods to interact  
+with TestResultWebApp's database.
+   """
    __single = None
    
    __NUM_BUFFERD_ELEMENTS_FOR_EXECUTEMANY=100
@@ -44,6 +43,9 @@ class CDataBase(object):
    #make the CDataBase to singleton
    #! __new__ requires inheritance from "object" !
    def __new__(classtype, *args, **kwargs):
+      """
+Create object method to make singleton class ``CDataBase``. 
+      """
       # Check to see if a __single exists already for this class
       # Compare class types instead of just looking for None so
       # that subclasses will create their own __single objects
@@ -52,7 +54,9 @@ class CDataBase(object):
       return classtype.__single
 
    def __init__(self):
-      #Connection object
+      """
+Initializer of class ``CDataBase``.
+      """
       con      = None  
       db       = None 
       self.lTestCases = []
@@ -67,25 +71,50 @@ class CDataBase(object):
                     charset     = 'utf8',
                     use_unicode = True):
       """
-      Connect to the database with provided authentication and db info.
+Connect to the database with provided authentication and db info.
 
-      Args:
-         host: URL which is hosted the TestResultWebApp's database.
+**Arguments:**
 
-         user : user name for database authentication.
+* ``host``
 
-         passwd : user password for database authentication.
+   / *Condition*: required / *Type*: str /
 
-         database : database name.
+   URL which is hosted the TestResultWebApp's database.
 
-         charset (optional): the connection character set.
+* ``user``
 
-         use_unicode (optional): If True, CHAR and VARCHAR and TEXT columns are 
-            returned as Unicode strings, using the configured character set.
+   / *Condition*: required / *Type*: str /
 
-      Returns:
-         None.
+   User name for database authentication.
 
+* ``passwd``
+
+   / *Condition*: required / *Type*: str /
+
+   User's password for database authentication.
+
+* ``database``
+
+   / *Condition*: required / *Type*: str /
+
+   Database name.
+
+* ``charset``
+
+   / *Condition*: optional / *Type*: str / *Default*: 'utf8' /
+
+   The connection character set.
+
+* ``use_unicode``
+
+   / *Condition*: optional / *Type*: bool / *Default*: True /
+
+   If True, CHAR and VARCHAR and TEXT columns are returned as Unicode strings, 
+   using the configured character set.
+
+**Returns:**
+
+(*no returns*)
       """
 
       if (host==None or user==None or passwd==None or database==None):
@@ -102,14 +131,30 @@ class CDataBase(object):
   
    def disconnect(self):
       """
-      Disconnect from TestResultWebApp's database. 
+Disconnect from TestResultWebApp's database. 
+
+**Arguments:**
+
+(*no arguments*)
+
+**Returns:**
+
+(*no returns*)
       """
       self.con.commit()
       self.con.close()
        
    def cleanAllTables(self):
       """
-      Delete all table data. Please be careful before calling this method.
+Delete all table data. Please be careful before calling this method.
+
+**Arguments:**
+
+(*no arguments*)
+
+**Returns:**
+
+(*no returns*)
       """
       print(">> Deleting all table data!")
       sql="""delete from """ + self.db + """.evtbl_result_main where test_result_id!="" """
@@ -143,19 +188,41 @@ class CDataBase(object):
            
    def __arExec(self, command, values=None, bHasResponse=False, bReturnInsertedID=False):
       """
-      Execute a query. By default don't try to fetch a result.
+Execute a query. By default don't try to fetch a result.
 
-      Args:
-         command : query need to be executed.
+**Arguments:**
 
-         values (optional) : sequence of parameters to be used with the query.
+* ``command``
 
-         bHasResponse (optional) : if True, respsonse is expected.
+   / *Condition*: required / *Type*: str /
+   
+   Query need to be executed.
 
-         bReturnInsertedID (optional) : if True, the lastrowid will be returned.
+* ``values``
+
+   / *Condition*: optional / *Type*: list / *Default*: None /
+   
+   Sequence of parameters to be used with the query.
+
+* ``bHasResponse``
+
+   / *Condition*: optional / *Type*: bool / *Default*: False /
+   
+   If True, respsonse is expected.
+
+* ``bReturnInsertedID``
+
+   / *Condition*: optional / *Type*: bool / *Default*: False /
+   
+   If True, the lastrowid will be returned.
       
-      Returns:
-         arRes : list of reponse data (or lastrowid if bReturnInsertedID is set).
+**Returns:**
+
+* ``arRes``
+
+   / *Type*: list /
+
+   List of reponse data (or lastrowid if bReturnInsertedID is set).
       """
       arRes = None
       c = self.con.cursor()
@@ -169,15 +236,25 @@ class CDataBase(object):
 
    def __vExecMany(self, command, values=None):
       """
-      Execute a query for bulk insert of many elements. No response expected.
+Execute a query for bulk insert of many elements. No response expected.
 
-      Args:
-         command : query need to be executed.
+**Arguments:**
 
-         values (optional) : sequence of parameters to be used with the query.
+* ``command``
+
+   / *Condition*: required / *Type*: str /
+
+   Query need to be executed.
+
+* ``values``
+
+   / *Condition*: optional / *Type*: list / *Default*: None /
+   
+   Sequence of parameters to be used with the query.
       
-      Returns:
-         None.      
+**Returns:**
+
+(*no returns*)      
       """
       c = self.con.cursor()
       c.executemany(command,values)
@@ -185,13 +262,23 @@ class CDataBase(object):
       
    def __nGetLastInsertID(self, tbl):
       """
-      Return the last_insert_id of a given table.
+Return the last_insert_id of a given table.
 
-      Args:
-         tbl : table name to get the last_insert_id.
+**Arguments:**
+
+* ``tbl``
+
+   / *Condition*: required / *Type*: str /
+   
+   Table name to get the last_insert_id.
       
-      Returns:
-         res : the last_insert_id.      
+**Returns:**
+
+* ``res``
+
+   / *Type*: str /
+
+   The last_insert_id.      
       """
       # "select last_insert_id from table" returns as result a one column table 
       # where the number of rows is the length of the full table. 
@@ -216,36 +303,90 @@ class CDataBase(object):
                                   _tbl_result_reporting_qualitygate
                             ):
       """
-      Creates a new test result in `tbl_result`. This is the main table which is 
-      linked to all other data by means of `test_result_id`.
+Creates a new test result in ``tbl_result``. This is the main table which is 
+linked to all other data by means of ``test_result_id``.
 
-      Args:
-         _tbl_prj_project : project information.
+**Arguments:**
+
+* ``_tbl_prj_project``
+
+   / *Condition*: required / *Type*: str /
+
+   Project information.
+
+* ``_tbl_prj_variant``
+
+   / *Condition*: required / *Type*: str /
+
+   Variant information.
+
+* ``_tbl_prj_branch``
+
+   / *Condition*: required / *Type*: str /
+
+   Branch information.
+
+* ``_tbl_test_result_id``
+
+   / *Condition*: required / *Type*: str /
+
+   UUID of test result.
+
+* ``_tbl_result_interpretation``
+
+   / *Condition*: required / *Type*: str /
+
+   Result interpretation.
+
+* ``_tbl_result_time_start``
+
+   / *Condition*: required / *Type*: str /
+
+   Test result start time as format ``%Y-%m-%d %H:%M:%S``.
+
+* ``_tbl_result_time_end``
+
+   / *Condition*: required / *Type*: str /
+
+   Test result end time as format ``%Y-%m-%d %H:%M:%S``.
+
+* ``_tbl_result_version_sw_target``
+
+   / *Condition*: required / *Type*: str /
+
+   Software version information.
+
+* ``_tbl_result_version_sw_test``
+
+   / *Condition*: required / *Type*: str /
+
+   Test version information.
+
+* ``_tbl_result_version_target``
+
+   / *Condition*: required / *Type*: str /
+
+   Hardware version information.
+
+* ``_tbl_result_jenkinsurl``
+
+   / *Condition*: required / *Type*: str /
+
+   Jenkinsurl in case test result is executed by jenkins.
+
+* ``_tbl_result_reporting_qualitygate``
+
+   / *Condition*: required / *Type*: str /
+
+   Qualitygate information for reporting.
       
-         _tbl_prj_variant : variant information.
-      
-         _tbl_prj_branch : branch information.
-      
-         _tbl_test_result_id : UUID of test result.
-      
-         _tbl_result_interpretation : result interpretation.
-      
-         _tbl_result_time_start : test result start time.
-      
-         _tbl_result_time_end : test result end time.
-      
-         _tbl_result_version_sw_target : software version information.
-      
-         _tbl_result_version_sw_test : test version information.
-      
-         _tbl_result_version_target : hardware version information.
-      
-         _tbl_result_jenkinsurl : jenkinsurl in case test result is executed by jenkins.
-      
-         _tbl_result_reporting_qualitygate : qualitygate information for reporting.
-      
-      Returns:
-         _tbl_test_result_id: `test_result_id`.
+**Returns:**
+
+* ``_tbl_test_result_id``
+
+   / *Type*: str /
+
+   ``test_result_id`` of new test result.
       """
       sql,sqlval = """select count(*) from """ + self.db + """.tbl_prj where 
                (project=%s and variant=%s and branch=%s)""", (_tbl_prj_project,
@@ -291,26 +432,59 @@ class CDataBase(object):
                            _tbl_test_result_id,
                            _tbl_file_origin="ROBFW"):
       """
-      Create new file entry in `tbl_file` table.
+Create new file entry in ``tbl_file`` table.
 
-      Args:
-         _tbl_file_name : file name information.
+**Arguments:**
+
+* ``_tbl_file_name``
+
+   / *Condition*: required / *Type*: str /
+
+   File name information.
+
+* ``_tbl_file_tester_account``
+
+   / *Condition*: required / *Type*: str /
+
+   Tester account information.
+
+* ``_tbl_file_tester_machine``
+
+   / *Condition*: required / *Type*: str /
+
+   Test machine information.
+
+* ``_tbl_file_time_start``
+
+   / *Condition*: required / *Type*: str /
+
+   Test file start time as format ``%Y-%m-%d %H:%M:%S``.
+
+* ``_tbl_file_time_end``
+
+   / *Condition*: required / *Type*: str /
+
+   Test file end time as format ``%Y-%m-%d %H:%M:%S``.
+
+* ``_tbl_test_result_id``
+
+   / *Condition*: required / *Type*: str /
+
+   UUID of test result for linking to `tbl_result` table.
+
+* ``_tbl_file_origin``
+
+   / *Condition*: required / *Type*: str /
+
+   Origin (test framework) of test file. Deafult is "ROBFW"
       
-         _tbl_file_tester_account : tester account information.
-      
-         _tbl_file_tester_machine : test machine information.
-      
-         _tbl_file_time_start : test file start time.
-      
-         _tbl_file_time_end : test file end time.
-      
-         _tbl_test_result_id : UUID of test result for linking to `tbl_result` table.
-      
-         _tbl_file_origin : origin (test framework) of test file. 
-            Deafult is "ROBFW"
-      
-      Returns:
-         iInsertedID: ID of new entry.
+**Returns:**
+
+* ``iInsertedID`
+   
+   / *Type*: int /
+   
+   ID of new entry.
       """
       sql,sqlval ="""insert into """ + self.db + """.tbl_file (name,tester_account,
                      tester_machine,time_start,time_end,test_result_id,origin) 
@@ -356,68 +530,181 @@ class CDataBase(object):
                               _tbl_header_preprocessor_filter,
                               _tbl_header_preprocessor_parameters ):
       """
-      Create a new header entry in `tbl_file_header` table which is linked with 
-      the file.
+Create a new header entry in ``tbl_file_header`` table which is linked with the file.
 
-      Args:
-         _tbl_file_id : file ID information.
+**Arguments:**
+
+* ``_tbl_file_id``
+
+   / *Condition*: required / *Type*: int /
+
+   File ID information.
+
+* ``_tbl_header_testtoolconfiguration_testtoolname``
+
+   / *Condition*: required / *Type*: str /
+
+   Test tool name.
+
+* ``_tbl_header_testtoolconfiguration_testtoolversionstring``
+
+   / *Condition*: required / *Type*: str /
+
+   Test tool version.
+
+* ``_tbl_header_testtoolconfiguration_projectname``
+
+   / *Condition*: required / *Type*: str /
+
+   Project name.
+
+* ``_tbl_header_testtoolconfiguration_logfileencoding``
+
+   / *Condition*: required / *Type*: str /
+
+   Encoding of logfile.
+
+* ``_tbl_header_testtoolconfiguration_pythonversion``
+
+   / *Condition*: required / *Type*: str /
+
+   Python version info.
+
+* ``_tbl_header_testtoolconfiguration_testfile``
+
+   / *Condition*: required / *Type*: str /
+
+   Test file name.
+
+* ``_tbl_header_testtoolconfiguration_logfilepath``
+
+   / *Condition*: required / *Type*: str /
+
+   Path to log file.
+
+* ``_tbl_header_testtoolconfiguration_logfilemode``
+
+   / *Condition*: required / *Type*: str /
+
+   Mode of log file.
+
+* ``_tbl_header_testtoolconfiguration_ctrlfilepath``
+
+   / *Condition*: required / *Type*: str /
+
+   Path to control file.
+
+* ``_tbl_header_testtoolconfiguration_configfile``
+
+   / *Condition*: required / *Type*: str /
+
+   Path to configuration file.
+
+* ``_tbl_header_testtoolconfiguration_confname``
+
+   / *Condition*: required / *Type*: str /
+
+   Configuration name.
+
+* ``_tbl_header_testfileheader_author``
+
+   / *Condition*: required / *Type*: str /
+
+   File author.
+
+* ``_tbl_header_testfileheader_project``
+
+   / *Condition*: required / *Type*: str /
+
+   Project information.
+
+* ``_tbl_header_testfileheader_testfiledate``
+
+   / *Condition*: required / *Type*: str /
+
+   File creation date.
+
+* ``_tbl_header_testfileheader_version_major``
+
+   / *Condition*: required / *Type*: str /
+
+   File major version.
+
+* ``_tbl_header_testfileheader_version_minor``
+
+   / *Condition*: required / *Type*: str /
+
+   File minor version.
+
+* ``_tbl_header_testfileheader_version_patch``
+
+   / *Condition*: required / *Type*: str /
+
+   File patch version.
+
+* ``_tbl_header_testfileheader_keyword``
+
+   / *Condition*: required / *Type*: str /
+
+   File keyword.
+
+* ``_tbl_header_testfileheader_shortdescription``
+
+   / *Condition*: required / *Type*: str /
+
+   File short description.
+
+* ``_tbl_header_testexecution_useraccount``
+
+   / *Condition*: required / *Type*: str /
+
+   Tester account who run the execution.
+
+* ``_tbl_header_testexecution_computername``
+
+   / *Condition*: required / *Type*: str /
+
+   Machine name which is executed on.
+
+* ``_tbl_header_testrequirements_documentmanagement``
+
+   / *Condition*: required / *Type*: str /
+
+   Requirement management information.
+
+* ``_tbl_header_testrequirements_testenvironment``
+
+   / *Condition*: required / *Type*: str /
+
+   Requirement environment information.
+
+* ``_tbl_header_testbenchconfig_name``
+
+   / *Condition*: required / *Type*: str /
+
+   Testbench configuration name.
+
+* ``_tbl_header_testbenchconfig_data``
+
+   / *Condition*: required / *Type*: str /
+
+   Testbench configuration data.
+
+* ``_tbl_header_preprocessor_filter``
+
+   / *Condition*: required / *Type*: str /
+
+   Preprocessor filter information.
+
+* ``_tbl_header_preprocessor_parameters``
+
+   / *Condition*: required / *Type*: str /
+
+   Preprocessor parameters definition.
       
-         _tbl_header_testtoolconfiguration_testtoolname : test tool name.
-      
-         _tbl_header_testtoolconfiguration_testtoolversionstring : test tool version.
-      
-         _tbl_header_testtoolconfiguration_projectname : project name.
-      
-         _tbl_header_testtoolconfiguration_logfileencoding : encoding of logfile.
-      
-         _tbl_header_testtoolconfiguration_pythonversion : Python version info.
-      
-         _tbl_header_testtoolconfiguration_testfile : test file name.
-      
-         _tbl_header_testtoolconfiguration_logfilepath : path to log file.
-      
-         _tbl_header_testtoolconfiguration_logfilemode : mode of log file.
-      
-         _tbl_header_testtoolconfiguration_ctrlfilepath : path to control file.
-      
-         _tbl_header_testtoolconfiguration_configfile : path to configuration file.
-      
-         _tbl_header_testtoolconfiguration_confname : configuration name.
-      
-         _tbl_header_testfileheader_author : file author.
-      
-         _tbl_header_testfileheader_project : project information.
-      
-         _tbl_header_testfileheader_testfiledate : file creation date.
-      
-         _tbl_header_testfileheader_version_major : file major version.
-      
-         _tbl_header_testfileheader_version_minor : file minor version.
-      
-         _tbl_header_testfileheader_version_patch : file patch version.
-      
-         _tbl_header_testfileheader_keyword : file keyword.
-      
-         _tbl_header_testfileheader_shortdescription : file short description.
-      
-         _tbl_header_testexecution_useraccount : tester account who run the execution.
-      
-         _tbl_header_testexecution_computername : machine name which is executed on.
-      
-         _tbl_header_testrequirements_documentmanagement : requirement management information.
-      
-         _tbl_header_testrequirements_testenvironment : requirement environment information.
-      
-         _tbl_header_testbenchconfig_name : testbench configuration name.
-      
-         _tbl_header_testbenchconfig_data : testbench configuration data.
-      
-         _tbl_header_preprocessor_filter : preprocessor filter information.
-      
-         _tbl_header_preprocessor_parameters : preprocessor parameters definition.
-      
-      Returns:
-         None.
+**Returns:**
+
+(*no returns*)
       """   
       sql,sqlval ="""insert into """ + self.db + """.tbl_file_header 
                         ( file_id,
@@ -504,41 +791,107 @@ class CDataBase(object):
                                 _tbl_file_id
                                ):
       """
-      Create single testcase entry in `tbl_case` table immediately.
+Create single testcase entry in ``tbl_case`` table immediately.
 
-      Args:
-         _tbl_case_name : test case name.
+**Arguments:**
+
+* ``_tbl_case_name``
+
+   / *Condition*: required / *Type*: str /
+
+   Test case name.
+
+* ``_tbl_case_issue``
+
+   / *Condition*: required / *Type*: str /
+
+   Test case issue ID.
+
+* ``_tbl_case_tcid``
+
+   / *Condition*: required / *Type*: str /
+
+   Test case ID (used for testmanagement tool).
+
+* ``_tbl_case_fid``
+
+   / *Condition*: required / *Type*: str /
+
+   Test case requirement (function) ID.
+
+* ``_tbl_case_testnumber``
+
+   / *Condition*: required / *Type*: int /
+
+   Order of test case in file.
+
+* ``_tbl_case_repeatcount``
+
+   / *Condition*: required / *Type*: int /
+
+   Test case repeatition count.
+
+* ``_tbl_case_component``
+
+   / *Condition*: required / *Type*: str /
+
+   Component which test case is belong to. 
+
+* ``_tbl_case_time_start``
+
+   / *Condition*: required / *Type*: str /
+
+   Test case start time as format ``%Y-%m-%d %H:%M:%S``.
+
+* ``_tbl_case_result_main``
+
+   / *Condition*: required / *Type*: str /
+
+   Test case main result.
+
+* ``_tbl_case_result_state``
+
+   / *Condition*: required / *Type*: str /
+
+   Test case completion state.
+
+* ``_tbl_case_result_return``
+
+   / *Condition*: required / *Type*: int /
+
+   Test case result code (as integer).
+
+* ``_tbl_case_counter_resets``
+
+   / *Condition*: required / *Type*: int /
+
+   Counter of target reset within test case execution.
+
+* ``_tbl_case_lastlog``
+
+   / *Condition*: required / *Type*: str /
+
+   Traceback information when test case is failed.
+
+* ``_tbl_test_result_id``
+
+   / *Condition*: required / *Type*: str /
+
+   UUID of test result for linking to file in ``tbl_result`` table. 
+
+* ``_tbl_file_id``
+
+   / *Condition*: required / *Type*: int /
+
+   Test file ID for linking to file in ``tbl_file`` table. 
       
-         _tbl_case_issue : test case issue ID.
-      
-         _tbl_case_tcid : test case ID (used for testmanagement tool).
-      
-         _tbl_case_fid : test case requirement (function) ID.
-      
-         _tbl_case_testnumber : order of test case in file.
-      
-         _tbl_case_repeatcount : test case repeatition count.
-      
-         _tbl_case_component : component which test case is belong to. 
-      
-         _tbl_case_time_start : test case start time.
-      
-         _tbl_case_result_main : test case main result.
-      
-         _tbl_case_result_state : test case completion state.
-      
-         _tbl_case_result_return : test case result code (as integer).
-      
-         _tbl_case_counter_resets : counter of target reset within test case execution.
-      
-         _tbl_case_lastlog : traceback information when test case is failed.
-      
-         _tbl_test_result_id : UUID of test result for linking to file in `tbl_result` table. 
-      
-         _tbl_file_id : test file ID for linking to file in `tbl_file` table. 
-      
-      Returns:
-         iInsertedID: ID of new entry.
+**Returns:**
+
+* ``iInsertedID`
+   
+   / *Type*: int /
+   
+   ID of new entry.
       """
       if _tbl_case_lastlog == "":
          _tbl_case_lastlog = None
@@ -587,43 +940,105 @@ class CDataBase(object):
                           _tbl_file_id
                            ):
       """
-      Create bulk of test case entries: new test case are buffered and inserted as bulk.
+Create bulk of test case entries: new test case are buffered and inserted as bulk.
 
-      Once `__NUM_BUFFERD_ELEMENTS_FOR_EXECUTEMANY` is reached, the creation query is executed.
+Once ``__NUM_BUFFERD_ELEMENTS_FOR_EXECUTEMANY`` is reached, the creation query is executed.
 
-      Args:
-         _tbl_case_name : test case name.
+**Arguments:**
+
+* ``_tbl_case_name``
+
+   / *Condition*: required / *Type*: str /
+
+   Test case name.
+
+* ``_tbl_case_issue``
+
+   / *Condition*: required / *Type*: str /
+
+   Test case issue ID.
+
+* ``_tbl_case_tcid``
+
+   / *Condition*: required / *Type*: str /
+
+   Test case ID (used for testmanagement tool).
+
+* ``_tbl_case_fid``
+
+   / *Condition*: required / *Type*: str /
+
+   Test case requirement (function) ID.
+
+* ``_tbl_case_testnumber``
+
+   / *Condition*: required / *Type*: int /
+
+   Order of test case in file.
+
+* ``_tbl_case_repeatcount``
+
+   / *Condition*: required / *Type*: int /
+
+   Test case repeatition count.
+
+* ``_tbl_case_component``
+
+   / *Condition*: required / *Type*: str /
+
+   Component which test case is belong to. 
+
+* ``_tbl_case_time_start``
+
+   / *Condition*: required / *Type*: str /
+
+   Test case start time as format ``%Y-%m-%d %H:%M:%S``.
+
+* ``_tbl_case_result_main``
+
+   / *Condition*: required / *Type*: str /
+
+   Test case main result.
+
+* ``_tbl_case_result_state``
+
+   / *Condition*: required / *Type*: str /
+
+   Test case completion state.
+
+* ``_tbl_case_result_return``
+
+   / *Condition*: required / *Type*: int /
+
+   Test case result code (as integer).
+
+* ``_tbl_case_counter_resets``
+
+   / *Condition*: required / *Type*: int /
+
+   Counter of target reset within test case execution.
+
+* ``_tbl_case_lastlog``
+
+   / *Condition*: required / *Type*: str /
+
+   Traceback information when test case is failed.
+
+* ``_tbl_test_result_id``
+
+   / *Condition*: required / *Type*: str /
+
+   UUID of test result for linking to file in `tbl_result` table. 
+
+* ``_tbl_file_id``
+
+   / *Condition*: required / *Type*: int /
+
+   Test file ID for linking to file in ``tbl_file`` table. 
       
-         _tbl_case_issue : test case issue ID.
-      
-         _tbl_case_tcid : test case ID (used for testmanagement tool).
-      
-         _tbl_case_fid : test case requirement (function) ID.
-      
-         _tbl_case_testnumber : order of test case in file.
-      
-         _tbl_case_repeatcount : test case repeatition count.
-      
-         _tbl_case_component : component which test case is belong to. 
-      
-         _tbl_case_time_start : test case start time.
-      
-         _tbl_case_result_main : test case main result.
-      
-         _tbl_case_result_state : test case completion state.
-      
-         _tbl_case_result_return : test case result code (as integer).
-      
-         _tbl_case_counter_resets : counter of target reset within test case execution.
-      
-         _tbl_case_lastlog : traceback information when test case is failed.
-      
-         _tbl_test_result_id : UUID of test result for linking to file in `tbl_result` table. 
-      
-         _tbl_file_id : test file ID for linking to file in `tbl_file` table. 
-      
-      Returns:
-         None.
+**Returns:**
+
+(*no returns*)
       """
       if _tbl_case_lastlog == "":
          _tbl_case_lastlog = None
@@ -653,13 +1068,19 @@ class CDataBase(object):
    
    def __vUploadTestCaseListToDb(self, lTestCases):
       """
-      Bulk insert test case results.
+Bulk insert test case results.
 
-      Args:
-         lTestCases : list of test case for creation.
+**Arguments:**
 
-      Returns:
-         None.
+* ``lTestCases``
+
+   / *Condition*: required / *Type*: str /
+
+   List of test case for creation.
+
+**Returns:**
+
+(*no returns*)
       """
       sql = """insert into """ + self.db + """.tbl_case (name, issue, tcid, fid, 
             testnumber, repeatcount, component, time_start, result_main, result_state, 
@@ -669,15 +1090,25 @@ class CDataBase(object):
        
    def vCreateTags(self, _tbl_test_result_id, _tbl_usr_result_tags):
       """
-      Create tag entries.
+Create tag entries.
 
-      Args:
-         _tbl_test_result_id : UUID of test result.
+**Arguments:**
 
-         _tbl_usr_result_tags : user tags information.
+* ``_tbl_test_result_id``
 
-      Returns:
-         None.
+   / *Condition*: required / *Type*: str /
+
+   UUID of test result.
+
+* ``_tbl_usr_result_tags``
+
+   / *Condition*: required / *Type*: str /
+
+   User tags information.
+
+**Returns:**
+
+(*no returns*)
       """
       sql,sqlval="""insert into """ + self.db + """.tbl_usr_result (test_result_id, tags) 
                     values (%s,%s)""", (_tbl_test_result_id , _tbl_usr_result_tags)
@@ -685,15 +1116,25 @@ class CDataBase(object):
    
    def vSetCategory(self, _tbl_test_result_id, tbl_result_category_main):
       """
-      Create category entry.
+Create category entry.
 
-      Args:
-         _tbl_test_result_id : UUID of test result.
+**Arguments:**
 
-         tbl_result_category_main : category information.
+* ``_tbl_test_result_id``
 
-      Returns:
-         None.
+   / *Condition*: required / *Type*: str /
+
+   UUID of test result.
+
+* ``tbl_result_category_main``
+
+   / *Condition*: required / *Type*: str /
+
+   Category information.
+
+**Returns:**
+
+(*no returns*)
       """
       sql="""update """ + self.db + """.tbl_result set category_main='""" + \
                   tbl_result_category_main + """' where test_result_id='""" + \
@@ -702,17 +1143,31 @@ class CDataBase(object):
         
    def vUpdateStartEndTime(self, _tbl_test_result_id, _tbl_result_time_start, _tbl_result_time_end):
       """
-      Create start-end time entry.
+Create start-end time entry.
 
-      Args:
-         _tbl_test_result_id : UUID of test result.
+**Arguments:**
 
-         _tbl_result_time_start : result start time.
+* ``_tbl_test_result_id``
 
-         _tbl_result_time_end : result end time.
+   / *Condition*: required / *Type*: str /
 
-      Returns:
-         None.
+   UUID of test result.
+
+* ``_tbl_result_time_start``
+
+   / *Condition*: required / *Type*: str /
+
+   Result start time as format ``%Y-%m-%d %H:%M:%S``.
+
+* ``_tbl_result_time_end``
+
+   / *Condition*: required / *Type*: str /
+
+   Result end time as format ``%Y-%m-%d %H:%M:%S``.
+
+**Returns:**
+
+(*no returns*)
       """
       sql,sqlval="""update """ + self.db + """.tbl_result set time_start=%s, time_end=%s 
                   where test_result_id='""" + _tbl_test_result_id + "'" , \
@@ -721,10 +1176,19 @@ class CDataBase(object):
         
    def arGetCategories(self):
       """
-      Get existing categories.
+Get existing categories.
 
-      Returns:
-         arCategories : list of exsiting categories.
+**Arguments:**
+
+(*no arguments*)
+
+**Returns:**
+
+* ``arCategories``
+
+   / *Type*: list /
+   
+   List of exsiting categories.
       """
       sql="""select category from """ + self.db + """.tbl_result_categories"""
       res=self.__arExec(sql, bHasResponse=True)
@@ -742,17 +1206,31 @@ class CDataBase(object):
                           _tbl_abort_message
                            ):
       """
-      Create abort reason entry.
+Create abort reason entry.
 
-      Args:
-         _tbl_test_result_id : UUID of test result.
+**Arguments:**
 
-         _tbl_abort_reason : abort reason.
+* ``_tbl_test_result_id``
 
-         _tbl_abort_message : detail message of abort.
+   / *Condition*: required / *Type*: str /
 
-      Returns:
-         None.
+   UUID of test result.
+
+* ``_tbl_abort_reason``
+
+   / *Condition*: required / *Type*: str /
+
+   Abort reason.
+
+* ``_tbl_abort_message``
+
+   / *Condition*: required / *Type*: str /
+
+   Detail message of abort.
+
+**Returns:**
+
+(*no returns*)
       """
       sql,sqlval = """insert into """ + self.db + """.tbl_abort 
                            (test_result_id, abort_reason, msg_detail)
@@ -764,15 +1242,25 @@ class CDataBase(object):
    
    def vCreateReanimation(self, _tbl_test_result_id, _tbl_num_of_reanimation):
       """
-      Create reanimation entry.
+Create reanimation entry.
 
-      Args:
-         _tbl_test_result_id : UUID of test result.
+**Arguments:**
 
-         _tbl_num_of_reanimation : counter of target reanimation during execution.
+* ``_tbl_test_result_id``
 
-      Returns:
-         None.
+   / *Condition*: required / *Type*: str /
+
+   UUID of test result.
+
+* ``_tbl_num_of_reanimation``
+
+   / *Condition*: required / *Type*: int /
+
+   Counter of target reanimation during execution.
+
+**Returns:**
+
+(*no returns*)
       """
       sql, sqlval = """update """ + self.db + """.tbl_result set num_of_reanimation=%s where 
                         test_result_id='""" + _tbl_test_result_id + "'", (_tbl_num_of_reanimation)
@@ -780,15 +1268,25 @@ class CDataBase(object):
 
    def vCreateCCRdata(self, _tbl_test_case_id, lCCRdata):
       """
-      Create CCR data per test case.
+Create CCR data per test case.
 
-      Args:
-         _tbl_test_case_id : test case ID.
+**Arguments:**
 
-         lCCRdata : list od CCR data.
+* ``_tbl_test_case_id``
 
-      Returns:
-         None.
+   / *Condition*: required / *Type*: int /
+
+   test case ID.
+
+* ``lCCRdata``
+
+   / *Condition*: required / *Type*: list /
+
+   list of CCR data.
+
+**Returns:**
+
+(*no returns*)
       """
       sql = """insert into """ + self.db + """.tbl_ccr (test_case_id, timestamp, MEM, CPU) values(%s,%s,%s,%s)"""
       sqlVals = []
@@ -799,10 +1297,22 @@ class CDataBase(object):
 
    def vFinishTestResult(self,_tbl_test_result_id):
       """
-      Finish upload:
-         - First do bulk insert of rest of test cases if buffer is not empty.
-         - Then set state to "new report".
-   
+Finish upload:
+
+   - First do bulk insert of rest of test cases if buffer is not empty.
+   - Then set state to "new report".
+
+**Arguments:**
+
+* ``_tbl_test_result_id``
+
+   / *Condition*: required / *Type*: str /
+
+   UUID of test result.
+
+**Returns:**
+
+(*no returns*)
       """
       if len(self.lTestCases) > 0:
          self.vEnableForeignKeyCheck(False)
@@ -814,80 +1324,152 @@ class CDataBase(object):
           
    def vUpdateEvtbls(self):
       """
-      Call `update_evtbls` stored procedure.
+Call ``update_evtbls`` stored procedure.
+
+**Arguments:**
+
+(*no arguments*)
+
+**Returns:**
+
+(*no returns*)
       """
       sql="""call """ + self.db + """.update_evtbls();""" 
       self.__arExec(sql)   
  
-   def vUpdateEvtbl(self, sTestResultID):
+   def vUpdateEvtbl(self, _tbl_test_result_id):
       """
-      Call `update_evtbl` stored procedure to update provided `test_result_id`.
+Call ``update_evtbl`` stored procedure to update provided ``test_result_id``.
+
+**Arguments:**
+
+* ``_tbl_test_result_id``
+
+   / *Condition*: required / *Type*: str /
+
+   UUID of test result.
+
+**Returns:**
+
+(*no returns*)
       """
-      sql="""call """ + self.db + """.update_evtbl('%s');"""%sTestResultID
+      sql="""call """ + self.db + """.update_evtbl('%s');"""%_tbl_test_result_id
       self.__arExec(sql)  
   
    def vEnableForeignKeyCheck(self, enable=True):
       """
-      Switch `foreign_key_checks` flag.
+Switch ``foreign_key_checks`` flag.
+
+**Arguments:**
+
+* ``enable``
+
+   / *Condition*: optional / *Type*: bool / *Default*: True /
+
+   If True, enable foreign key constraint.
+
+**Returns:**
+
+(*no returns*)
       """
       sql = "SET FOREIGN_KEY_CHECKS=%s;" %str(int(enable))
       self.__arExec(sql)        
        
-   def sGetLatestFileID(self, sResultID):
+   def sGetLatestFileID(self, _tbl_test_result_id):
       """
-      Get latest file ID from `tbl_file` table.
+Get latest file ID from ``tbl_file`` table.
 
-      Args:
-         sResultID : UUID of test result to get the latest file ID.
+**Arguments:**
 
-      Returns:
-         sFileID : file ID.
+* ``_tbl_test_result_id``
+
+   / *Condition*: required / *Type*: str /
+
+   UUID of test result.
+
+**Returns:**
+
+* ``_tbl_file_id``
+
+   / *Type*: int /
+
+   File ID.
       """
-      sql = "SELECT MAX(file_id) FROM %s.tbl_file WHERE test_result_id='%s'"%(self.db, sResultID)
-      sFileID = self.__arExec(sql,bHasResponse=True)[0][0]
-      return sFileID
+      sql = "SELECT MAX(file_id) FROM %s.tbl_file WHERE test_result_id='%s'"%(self.db, _tbl_test_result_id)
+      _tbl_file_id = self.__arExec(sql,bHasResponse=True)[0][0]
+      return _tbl_file_id
 
-   def vUpdateFileEndTime(self, sFileID, sEndtime):
+   def vUpdateFileEndTime(self, _tbl_file_id, _tbl_file_time_end):
       """
-      Update test file end time.
+Update test file end time.
 
-      Args:
-         sFileID : file ID to be updated.
+**Arguments:**
 
-         sEndtime : end time information.
+* ``_tbl_file_id``
 
-      Returns:
-         None.
+   / *Condition*: required / *Type*: int /
+
+   File ID to be updated.
+
+* ``_tbl_file_time_end``
+
+   / *Condition*: required / *Type*: str /
+
+   File end time as format ``%Y-%m-%d %H:%M:%S``.
+
+**Returns:**
+
+(*no returns*)
       """
-      sql = "UPDATE %s.tbl_file SET time_end='%s' WHERE file_id=%s"%(self.db, sEndtime, sFileID)
+      sql = "UPDATE %s.tbl_file SET time_end='%s' WHERE file_id=%s"%(self.db, _tbl_file_time_end, _tbl_file_id)
       self.__arExec(sql)
 
-   def vUpdateResultEndTime(self, sResultID, sEndtime):
+   def vUpdateResultEndTime(self, _tbl_test_result_id, _tbl_result_time_end):
       """
-      Update test result end time.
+Update test result end time.
 
-      Args:
-         sResultID : test result UUID to be updated.
+**Arguments:**
 
-         sEndtime : end time information.
+* ``_tbl_test_result_id``
 
-      Returns:
-         None.
+   / *Condition*: required / *Type*: int /
+
+   Result UUID to be updated.
+
+* ``_tbl_result_time_end``
+
+   / *Condition*: required / *Type*: str /
+
+   Result end time as format ``%Y-%m-%d %H:%M:%S``.
+
+**Returns:**
+
+(*no returns*)
       """
-      sql = "UPDATE %s.tbl_result SET time_end='%s' WHERE test_result_id='%s'"%(self.db, sEndtime, sResultID)
+      sql = "UPDATE %s.tbl_result SET time_end='%s' WHERE test_result_id='%s'"%(self.db, _tbl_result_time_end, _tbl_test_result_id)
       self.__arExec(sql)
    
-   def bExistingResultID(self, sResultID):
+   def bExistingResultID(self, _tbl_test_result_id):
       """
-      Verify the given test result UUID is existing in `tbl_result` table or not.
+Verify the given test result UUID is existing in ``tbl_result`` table or not.
 
-      Args:
-         sResultID : test result UUID to be verified.
+**Arguments:**
 
-      Returns:
-         bExisting : True if test result UUID is already existing.
+* ``_tbl_test_result_id``
+
+   / *Condition*: required / *Type*: int /
+
+   Result UUID to be verified.
+
+**Returns:**
+
+* ``bExisting`` 
+
+   / *Type*: bool /
+
+   True if test result UUID is already existing.
       """
-      sql = "SELECT test_result_id FROM %s.tbl_result WHERE test_result_id='%s'"%(self.db, sResultID)
+      sql = "SELECT test_result_id FROM %s.tbl_result WHERE test_result_id='%s'"%(self.db, _tbl_test_result_id)
       res = self.__arExec(sql, bHasResponse=True)
       bExisting = False
       if res and len(res)>0:
