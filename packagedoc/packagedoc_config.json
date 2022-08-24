@@ -52,7 +52,7 @@
 
    "TOC" : {
             "introduction"  : "./additional_docs/Introduction.rst",
-            "description"   : "./additional_docs/Description.rst",
+            "description"   : "./additional_docs/Description.tex",
             "INTERFACE"     : "../###PACKAGENAME###",
             "appendix"      : "./additional_docs/Appendix.rst",
             "history"       : "./additional_docs/History.tex",
@@ -95,7 +95,7 @@
 # This key is optional. In case of there are no pictures needed in this package description,
 # this key can be removed or set to null.
 
-   # "PICTURES" : "./additional_docs/pictures",
+   "PICTURES" : "./additional_docs/pictures",
 
 # Section "OUTPUT":
 # -----------------
