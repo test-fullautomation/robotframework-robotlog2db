@@ -26,7 +26,7 @@
 #  - initial version
 #
 # 2021-05-20:
-#  - Correct regex for tags and testool.
+#  - Correct regex for tags and testtool.
 #  - Add file description information as suite.doc.
 #  - Add new command line arguments:
 #    + -UUID: to specify the uuid of test result.
@@ -103,25 +103,25 @@ Configure Logger class.
 
 **Arguments:**
 
-* ``output_console``
+*  ``output_console``
 
    / *Condition*: optional / *Type*: bool / *Default*: True /
 
    Write message to console output.
 
-* ``output_logfile``
+*  ``output_logfile``
 
    / *Condition*: optional / *Type*: str / *Default*: None /
 
    Path to log file output.
 
-* ``indent``
+*  ``indent``
 
    / *Condition*: optional / *Type*: int / *Default*: 0 /
 
    Offset indent.
 
-* ``dryrun``
+*  ``dryrun``
 
    / *Condition*: optional / *Type*: bool / *Default*: True /
 
@@ -144,19 +144,19 @@ Write log message to console/file output.
 
 **Arguments:**
 
-* ``msg``
+*  ``msg``
 
    / *Condition*: optional / *Type*: str / *Default*: '' /
 
    Message which is written to output.
 
-* ``color``
+*  ``color``
 
    / *Condition*: optional / *Type*: str / *Default*: None /
 
    Color style for the message.
 
-* ``indent``
+*  ``indent``
 
    / *Condition*: optional / *Type*: int / *Default*: 0 /
 
@@ -182,7 +182,7 @@ Write warning message to console/file output.
       
 **Arguments:**
 
-* ``msg``
+*  ``msg``
 
    / *Condition*: required / *Type*: str /
 
@@ -199,13 +199,15 @@ Write warning message to console/file output.
       """
 Write error message to console/file output.
 
-* ``msg``
+**Arguments:**
+
+*  ``msg``
 
    / *Condition*: required / *Type*: str /
 
    Error message which is written to output.
 
-* ``fatal_error``
+*  ``fatal_error``
 
    / *Condition*: optional / *Type*: bool / *Default*: False /
 
@@ -230,13 +232,13 @@ Verify the given UUID is valid or not.
 
 **Arguments:**
 
-* ``uuid_to_test``
+*  ``uuid_to_test``
 
    / *Condition*: required / *Type*: str /
    
    UUID to be verified.
 
-* ``version``
+*  ``version``
 
    / *Condition*: optional / *Type*: int / *Default*: 4 /
    
@@ -244,7 +246,7 @@ Verify the given UUID is valid or not.
 
 **Returns:**
 
-* ``bValid``
+*  ``bValid``
 
    / *Type*: bool /
 
@@ -270,13 +272,13 @@ Example:
 
 **Arguments:**
 
-* ``lTags``
+*  ``lTags``
 
    / *Condition*: required / *Type*: list /
 
    List of tag information.
 
-* ``reInfo``
+*  ``reInfo``
 
    / *Condition*: required / *Type*: str /
 
@@ -284,7 +286,7 @@ Example:
 
 **Returns:**
 
-* ``lInfo``
+*  ``lInfo``
 
    / *Type*: list /
    
@@ -303,15 +305,16 @@ def get_branch_from_swversion(sw_version):
 Get branch name from software version information.
 
 Convention of branch information in suffix of software version:
-   - All software version with .0F is the main/freature branch. 
-      The leading number is the current year. E.g. ``17.0F03``
-   - All software version with ``.1S``, ``.2S``, ... is a stabi branch. 
-      The leading number is the year of branching out for stabilization.
-      The number before "S" is the order of branching out in the year.
+
+*  All software version with .0F is the main/freature branch. 
+   The leading number is the current year. E.g. ``17.0F03``
+*  All software version with ``.1S``, ``.2S``, ... is a stabi branch. 
+   The leading number is the year of branching out for stabilization.
+   The number before "S" is the order of branching out in the year.
    
 **Arguments:**
 
-* ``sw_version``6
+*  ``sw_version``
 
    / *Condition*: required / *Type*: str /
    
@@ -319,7 +322,7 @@ Convention of branch information in suffix of software version:
 
 **Returns:**
 
-* ``branch_name``
+*  ``branch_name``
 
    / *Type*: str /
 
@@ -335,13 +338,13 @@ Convention of branch information in suffix of software version:
       branch_name="main"
    return branch_name
 
-def format_time(stime):
+def format_time(sTime):
    """
 Format the given time string to TestResultWebApp's format for importing to db.
 
 **Arguments:**
 
-* ``testcstimeaseID``
+*  ``stime``
 
    / *Condition*: required / *Type*: str /
 
@@ -349,18 +352,22 @@ Format the given time string to TestResultWebApp's format for importing to db.
 
 **Returns:**
 
+*  ``sFormatedTime``
+
    / *Type*: str /
 
    TestResultWebApp's time as format ``%Y-%m-%d %H:%M:%S``.
    """
 
-   return 
+   sFormatedTime = sTime[0:4]+"-"+sTime[4:6]+"-"+sTime[6:]
+   return sFormatedTime
 
 def __process_commandline():
    """
 Process provided argument(s) from command line.
 
 Avalable arguments in command line:
+
    - `-v` : tool version information.
    - `outputfile` : path to the output file or directory with output files to be imported.
    - `server` : server which hosts the database (IP or URL).
@@ -421,13 +428,13 @@ Metadata at top suite level has a highest priority.
    
 **Arguments:**
 
-* ``suite``
+*  ``suite``
 
    / *Condition*: required / *Type*: `TestSuite` object /
 
    Robot suite object.
 
-* ``default_metadata``
+*  ``default_metadata``
 
    / *Condition*: optional / *Type*: dict / *Default*: DEFAULT_METADATA /
 
@@ -435,7 +442,7 @@ Metadata at top suite level has a highest priority.
 
 **Returns:**
 
-* ``dMetadata``
+*  ``dMetadata``
 
    / *Type*: dict /
 
@@ -457,13 +464,13 @@ Extract metadata from suite result bases on DEFAULT_METADATA.
 
 **Arguments:**
 
-* ``metadata``
+*  ``metadata``
 
    / *Condition*: required / *Type*: dict /
 
    Robot metadata object.
 
-* ``default_metadata``
+*  ``default_metadata``
 
    / *Condition*: optional / *Type*: dict / *Default*: DEFAULT_METADATA /
 
@@ -471,7 +478,7 @@ Extract metadata from suite result bases on DEFAULT_METADATA.
 
 **Returns:**
 
-* ``dMetadata``
+*  ``dMetadata``
    
    / *Type*: dict /
    
@@ -488,36 +495,37 @@ Extract metadata from suite result bases on DEFAULT_METADATA.
 def process_suite(db, suite, _tbl_test_result_id, root_metadata, dConfig=None):
    """
 Process to the lowest suite level (test file):
-   - Create new file and its header information
-   - Then, process all child test cases
+
+* Create new file and its header information
+* Then, process all child test cases
 
 **Arguments:**
 
-* ``db``
+*  ``db``
 
-   / *Condition*: required / *Type*: `CDataBase` object/
+   / *Condition*: required / *Type*: `CDataBase` object /
 
    CDataBase object.
 
-* ``suite``
+*  ``suite``
 
-   / *Condition*: required / *Type*: `TestSuite` object/
+   / *Condition*: required / *Type*: `TestSuite` object /
 
    Robot suite object.
 
-* ``_tbl_test_result_id``
+*  ``_tbl_test_result_id``
 
-   / *Condition*: required / *Type*: str/
+   / *Condition*: required / *Type*: str /
 
    UUID of test result for importing.
 
-* ``root_metadata``
+*  ``root_metadata``
 
-   / *Condition*: required / *Type*: dict/
+   / *Condition*: required / *Type*: dict /
 
    Metadata information from root level.
 
-* ``dConfig``
+*  ``dConfig``
 
    / *Condition*: required / *Type*: dict / *Default*: None /
 
@@ -551,15 +559,15 @@ Process to the lowest suite level (test file):
                   if isinstance(dConfig['component'][cmpt_name], list):
                      bFound = False
                      for path in dConfig['component'][cmpt_name]:
-                        if normailze_path(path) in normailze_path(_tbl_file_name):
+                        if normalize_path(path) in normalize_path(_tbl_file_name):
                            metadata_info['component'] = cmpt_name
                            bFound = True
                            break
                      if bFound:
                         break
                   elif isinstance(dConfig['component'][cmpt_name], str):
-                     cmpt_path = normailze_path(dConfig['component'][cmpt_name])
-                     if cmpt_path in normailze_path(_tbl_file_name):
+                     cmpt_path = normalize_path(dConfig['component'][cmpt_name])
+                     if cmpt_path in normalize_path(_tbl_file_name):
                         metadata_info['component'] = cmpt_name
                         break
             elif isinstance(dConfig['component'], str) and dConfig['component'].strip() != "":
@@ -662,39 +670,39 @@ Process test case data and create new test case record.
 
 **Arguments:**
 
-* ``db``
+*  ``db``
 
-   / *Condition*: required / *Type*: `CDataBase` object/
+   / *Condition*: required / *Type*: `CDataBase` object /
 
    CDataBase object.
 
-* ``test``
+*  ``test``
 
-   / *Condition*: required / *Type*: `TestCase` object/
+   / *Condition*: required / *Type*: `TestCase` object /
 
    Robot test object.
 
-* ``file_id``
+*  ``file_id``
 
-   / *Condition*: required / *Type*: int/
+   / *Condition*: required / *Type*: int /
 
    File ID for mapping.
 
-* ``test_result_id``
+*  ``test_result_id``
 
-   / *Condition*: required / *Type*: str/
+   / *Condition*: required / *Type*: str /
 
    Test result ID for mapping.
 
-* ``metadata_info``
+*  ``metadata_info``
 
-   / *Condition*: required / *Type*: dict/
+   / *Condition*: required / *Type*: dict /
 
    Metadata information.
 
-* ``test_number``
+*  ``test_number``
 
-   / *Condition*: required / *Type*: int/
+   / *Condition*: required / *Type*: int /
 
    Order of test case in file.
 
@@ -750,28 +758,30 @@ Process test case data and create new test case record.
 def process_config_file(config_file):
    """
 Parse information from configuration file:
-   - ``component``:
-      
-      .. code:: python
 
-         {
-            "component" : {
-               "componentA" : "componentA/path/to/testcase",
-               "componentB" : "componentB/path/to/testcase",
-               "componentC" : [
-                  "componentC1/path/to/testcase",
-                  "componentC2/path/to/testcase"
-               ]
-            }
+*  ``component``:
+   
+   .. code:: python
+
+      {
+         "component" : {
+            "componentA" : "componentA/path/to/testcase",
+            "componentB" : "componentB/path/to/testcase",
+            "componentC" : [
+               "componentC1/path/to/testcase",
+               "componentC2/path/to/testcase"
+            ]
          }
+      }
 
-      Then all testcase which its path contain ``componentA/path/to/testcase`` 
-      will be belong to ``componentA``, ...
-   - ``variant``, ``version_sw``: configuration file has low priority than command line.
+   Then all testcases which their paths contain ``componentA/path/to/testcase`` 
+   will be belong to ``componentA``, ...
+
+*  ``variant``, ``version_sw``: configuration file has low priority than command line.
 
 **Arguments:**
 
-* ``config_file``
+*  ``config_file``
 
    / *Condition*: required / *Type*: str /
 
@@ -779,7 +789,7 @@ Parse information from configuration file:
 
 **Returns:**
 
-* ``dConfig``
+*  ``dConfig``
 
    / *Type*: dict /
    
@@ -800,29 +810,29 @@ Validate the json configuration base on given schema.
 
 Default schema just supports ``component``, ``variant`` and ``version_sw``.
    
-   .. code:: python
+.. code:: python
 
-      CONFIG_SCHEMA = {
-         "component" : [str, dict],
-         "variant"   : str,
-         "version_sw": str,
-      }
+   CONFIG_SCHEMA = {
+      "component" : [str, dict],
+      "variant"   : str,
+      "version_sw": str,
+   }
 
 **Arguments:**
 
-* ``dConfig``
+*  ``dConfig``
 
    / *Condition*: required / *Type*: dict /
 
    Json configuration object to be verified.
 
-* ``dSchema``
+*  ``dSchema``
 
    / *Condition*: optional / *Type*: dict / *Default*: CONFIG_SCHEMA /
 
    Schema for the validation.
 
-* ``bExitOnFail``
+*  ``bExitOnFail``
 
    / *Condition*: optional / *Type*: bool / *Default*: True /
 
@@ -830,7 +840,7 @@ Default schema just supports ``component``, ``variant`` and ``version_sw``.
 
 **Returns:**
 
-* ``bValid``
+*  ``bValid``
 
    / *Type*: bool /
 
@@ -857,24 +867,23 @@ Default schema just supports ``component``, ``variant`` and ``version_sw``.
    
    return bValid
 
-def normailze_path(sPath):
+def normalize_path(sPath):
    """
 Normalize path file.
 
 **Arguments:**
 
-* ``sPath``
+*  ``sPath``
 
    / *Condition*: required / *Type*: str /
 
-   String of path file to be normalized.
+   Path file to be normalized.
 
-**sNPath:**
-   
+*  ``sNPath``
    
    / *Type*: str /
    
-   String of normalized path file.
+   Normalized path file.
    """
    if sPath.strip()=='':
       return ''
@@ -893,27 +902,27 @@ Truncate input string before importing to database.
 
 **Arguments:**
 
-* ``sString``
+*  ``sString``
 
    / *Condition*: required / *Type*: str /
 
    Input string for truncation.
 
-* ``iMaxLength``
+*  ``iMaxLength``
 
    / *Condition*: required / *Type*: int /
 
    Max length of string to be allowed. 
 
-* ``sEndChars``
+*  ``sEndChars``
 
-/ *Condition*: optional / *Type*: str / *Default*: '...' /
+   / *Condition*: optional / *Type*: str / *Default*: '...' /
 
    End characters which are added to end of truncated string.
 
 **Returns:**
 
-* ``content``
+*  ``content``
 
    / *Type*: str /
 
@@ -933,30 +942,32 @@ def RobotResults2DB(args=None):
 Import robot results from ``output.xml`` to TestResultWebApp's database.
 
 Flow to import Robot results to database: 
-   1. Process provided arguments from command line.
-   2. Connect to database.
-   3. Parse Robot results.
-   4. Import results into database.
-   5. Disconnect from database.
+
+1. Process provided arguments from command line.
+2. Connect to database.
+3. Parse Robot results.
+4. Import results into database.
+5. Disconnect from database.
 
 **Arguments:**
 
-* ``args``
+*  ``args``
 
    / *Condition*: required / *Type*: `ArgumentParser` object /
 
    Argument parser object which contains:
-      - `outputfile` : path to the output file or directory with output files to be imported.
-      - `server` : server which hosts the database (IP or URL).
-      - `user` : user for database login.
-      - `password` : password for database login.
-      - `database` : database name.
-      - `recursive` : if True, then the path is searched recursively for log files to be imported.
-      - `dryrun` : if True, then just check the RQM authentication and show what would be done.
-      - `UUID` : UUID used to identify the import and version ID on TestResultWebApp.
-      - `variant` : variant name to be set for this import.
-      - `versions` : metadata: Versions (Software;Hardware;Test) to be set for this import.
-      - `config` : configuration json file for component mapping information.
+
+   * `outputfile` : path to the output file or directory with output files to be imported.
+   * `server` : server which hosts the database (IP or URL).
+   * `user` : user for database login.
+   * `password` : password for database login.
+   * `database` : database name.
+   * `recursive` : if True, then the path is searched recursively for log files to be imported.
+   * `dryrun` : if True, then just check the RQM authentication and show what would be done.
+   * `UUID` : UUID used to identify the import and version ID on TestResultWebApp.
+   * `variant` : variant name to be set for this import.
+   * `versions` : metadata: Versions (Software;Hardware;Test) to be set for this import.
+   * `config` : configuration json file for component mapping information.
 
 **Returns:**
 

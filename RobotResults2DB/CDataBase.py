@@ -75,37 +75,37 @@ Connect to the database with provided authentication and db info.
 
 **Arguments:**
 
-* ``host``
+*  ``host``
 
    / *Condition*: required / *Type*: str /
 
    URL which is hosted the TestResultWebApp's database.
 
-* ``user``
+*  ``user``
 
    / *Condition*: required / *Type*: str /
 
    User name for database authentication.
 
-* ``passwd``
+*  ``passwd``
 
    / *Condition*: required / *Type*: str /
 
    User's password for database authentication.
 
-* ``database``
+*  ``database``
 
    / *Condition*: required / *Type*: str /
 
    Database name.
 
-* ``charset``
+*  ``charset``
 
    / *Condition*: optional / *Type*: str / *Default*: 'utf8' /
 
    The connection character set.
 
-* ``use_unicode``
+*  ``use_unicode``
 
    / *Condition*: optional / *Type*: bool / *Default*: True /
 
@@ -192,25 +192,25 @@ Execute a query. By default don't try to fetch a result.
 
 **Arguments:**
 
-* ``command``
+*  ``command``
 
    / *Condition*: required / *Type*: str /
    
    Query need to be executed.
 
-* ``values``
+*  ``values``
 
    / *Condition*: optional / *Type*: list / *Default*: None /
    
    Sequence of parameters to be used with the query.
 
-* ``bHasResponse``
+*  ``bHasResponse``
 
    / *Condition*: optional / *Type*: bool / *Default*: False /
    
    If True, respsonse is expected.
 
-* ``bReturnInsertedID``
+*  ``bReturnInsertedID``
 
    / *Condition*: optional / *Type*: bool / *Default*: False /
    
@@ -218,7 +218,7 @@ Execute a query. By default don't try to fetch a result.
       
 **Returns:**
 
-* ``arRes``
+*  ``arRes``
 
    / *Type*: list /
 
@@ -240,13 +240,13 @@ Execute a query for bulk insert of many elements. No response expected.
 
 **Arguments:**
 
-* ``command``
+*  ``command``
 
    / *Condition*: required / *Type*: str /
 
    Query need to be executed.
 
-* ``values``
+*  ``values``
 
    / *Condition*: optional / *Type*: list / *Default*: None /
    
@@ -266,7 +266,7 @@ Return the last_insert_id of a given table.
 
 **Arguments:**
 
-* ``tbl``
+*  ``tbl``
 
    / *Condition*: required / *Type*: str /
    
@@ -274,7 +274,7 @@ Return the last_insert_id of a given table.
       
 **Returns:**
 
-* ``res``
+*  ``res``
 
    / *Type*: str /
 
@@ -308,73 +308,73 @@ linked to all other data by means of ``test_result_id``.
 
 **Arguments:**
 
-* ``_tbl_prj_project``
+*  ``_tbl_prj_project``
 
    / *Condition*: required / *Type*: str /
 
    Project information.
 
-* ``_tbl_prj_variant``
+*  ``_tbl_prj_variant``
 
    / *Condition*: required / *Type*: str /
 
    Variant information.
 
-* ``_tbl_prj_branch``
+*  ``_tbl_prj_branch``
 
    / *Condition*: required / *Type*: str /
 
    Branch information.
 
-* ``_tbl_test_result_id``
+*  ``_tbl_test_result_id``
 
    / *Condition*: required / *Type*: str /
 
    UUID of test result.
 
-* ``_tbl_result_interpretation``
+*  ``_tbl_result_interpretation``
 
    / *Condition*: required / *Type*: str /
 
    Result interpretation.
 
-* ``_tbl_result_time_start``
+*  ``_tbl_result_time_start``
 
    / *Condition*: required / *Type*: str /
 
    Test result start time as format ``%Y-%m-%d %H:%M:%S``.
 
-* ``_tbl_result_time_end``
+*  ``_tbl_result_time_end``
 
    / *Condition*: required / *Type*: str /
 
    Test result end time as format ``%Y-%m-%d %H:%M:%S``.
 
-* ``_tbl_result_version_sw_target``
+*  ``_tbl_result_version_sw_target``
 
    / *Condition*: required / *Type*: str /
 
    Software version information.
 
-* ``_tbl_result_version_sw_test``
+*  ``_tbl_result_version_sw_test``
 
    / *Condition*: required / *Type*: str /
 
    Test version information.
 
-* ``_tbl_result_version_target``
+*  ``_tbl_result_version_target``
 
    / *Condition*: required / *Type*: str /
 
    Hardware version information.
 
-* ``_tbl_result_jenkinsurl``
+*  ``_tbl_result_jenkinsurl``
 
    / *Condition*: required / *Type*: str /
 
    Jenkinsurl in case test result is executed by jenkins.
 
-* ``_tbl_result_reporting_qualitygate``
+*  ``_tbl_result_reporting_qualitygate``
 
    / *Condition*: required / *Type*: str /
 
@@ -382,7 +382,7 @@ linked to all other data by means of ``test_result_id``.
       
 **Returns:**
 
-* ``_tbl_test_result_id``
+*  ``_tbl_test_result_id``
 
    / *Type*: str /
 
@@ -436,43 +436,43 @@ Create new file entry in ``tbl_file`` table.
 
 **Arguments:**
 
-* ``_tbl_file_name``
+*  ``_tbl_file_name``
 
    / *Condition*: required / *Type*: str /
 
    File name information.
 
-* ``_tbl_file_tester_account``
+*  ``_tbl_file_tester_account``
 
    / *Condition*: required / *Type*: str /
 
    Tester account information.
 
-* ``_tbl_file_tester_machine``
+*  ``_tbl_file_tester_machine``
 
    / *Condition*: required / *Type*: str /
 
    Test machine information.
 
-* ``_tbl_file_time_start``
+*  ``_tbl_file_time_start``
 
    / *Condition*: required / *Type*: str /
 
    Test file start time as format ``%Y-%m-%d %H:%M:%S``.
 
-* ``_tbl_file_time_end``
+*  ``_tbl_file_time_end``
 
    / *Condition*: required / *Type*: str /
 
    Test file end time as format ``%Y-%m-%d %H:%M:%S``.
 
-* ``_tbl_test_result_id``
+*  ``_tbl_test_result_id``
 
    / *Condition*: required / *Type*: str /
 
    UUID of test result for linking to `tbl_result` table.
 
-* ``_tbl_file_origin``
+*  ``_tbl_file_origin``
 
    / *Condition*: required / *Type*: str /
 
@@ -480,7 +480,7 @@ Create new file entry in ``tbl_file`` table.
       
 **Returns:**
 
-* ``iInsertedID`
+*  ``iInsertedID``
    
    / *Type*: int /
    
@@ -534,169 +534,169 @@ Create a new header entry in ``tbl_file_header`` table which is linked with the 
 
 **Arguments:**
 
-* ``_tbl_file_id``
+*  ``_tbl_file_id``
 
    / *Condition*: required / *Type*: int /
 
    File ID information.
 
-* ``_tbl_header_testtoolconfiguration_testtoolname``
+*  ``_tbl_header_testtoolconfiguration_testtoolname``
 
    / *Condition*: required / *Type*: str /
 
    Test tool name.
 
-* ``_tbl_header_testtoolconfiguration_testtoolversionstring``
+*  ``_tbl_header_testtoolconfiguration_testtoolversionstring``
 
    / *Condition*: required / *Type*: str /
 
    Test tool version.
 
-* ``_tbl_header_testtoolconfiguration_projectname``
+*  ``_tbl_header_testtoolconfiguration_projectname``
 
    / *Condition*: required / *Type*: str /
 
    Project name.
 
-* ``_tbl_header_testtoolconfiguration_logfileencoding``
+*  ``_tbl_header_testtoolconfiguration_logfileencoding``
 
    / *Condition*: required / *Type*: str /
 
    Encoding of logfile.
 
-* ``_tbl_header_testtoolconfiguration_pythonversion``
+*  ``_tbl_header_testtoolconfiguration_pythonversion``
 
    / *Condition*: required / *Type*: str /
 
    Python version info.
 
-* ``_tbl_header_testtoolconfiguration_testfile``
+*  ``_tbl_header_testtoolconfiguration_testfile``
 
    / *Condition*: required / *Type*: str /
 
    Test file name.
 
-* ``_tbl_header_testtoolconfiguration_logfilepath``
+*  ``_tbl_header_testtoolconfiguration_logfilepath``
 
    / *Condition*: required / *Type*: str /
 
    Path to log file.
 
-* ``_tbl_header_testtoolconfiguration_logfilemode``
+*  ``_tbl_header_testtoolconfiguration_logfilemode``
 
    / *Condition*: required / *Type*: str /
 
    Mode of log file.
 
-* ``_tbl_header_testtoolconfiguration_ctrlfilepath``
+*  ``_tbl_header_testtoolconfiguration_ctrlfilepath``
 
    / *Condition*: required / *Type*: str /
 
    Path to control file.
 
-* ``_tbl_header_testtoolconfiguration_configfile``
+*  ``_tbl_header_testtoolconfiguration_configfile``
 
    / *Condition*: required / *Type*: str /
 
    Path to configuration file.
 
-* ``_tbl_header_testtoolconfiguration_confname``
+*  ``_tbl_header_testtoolconfiguration_confname``
 
    / *Condition*: required / *Type*: str /
 
    Configuration name.
 
-* ``_tbl_header_testfileheader_author``
+*  ``_tbl_header_testfileheader_author``
 
    / *Condition*: required / *Type*: str /
 
    File author.
 
-* ``_tbl_header_testfileheader_project``
+*  ``_tbl_header_testfileheader_project``
 
    / *Condition*: required / *Type*: str /
 
    Project information.
 
-* ``_tbl_header_testfileheader_testfiledate``
+*  ``_tbl_header_testfileheader_testfiledate``
 
    / *Condition*: required / *Type*: str /
 
    File creation date.
 
-* ``_tbl_header_testfileheader_version_major``
+*  ``_tbl_header_testfileheader_version_major``
 
    / *Condition*: required / *Type*: str /
 
    File major version.
 
-* ``_tbl_header_testfileheader_version_minor``
+*  ``_tbl_header_testfileheader_version_minor``
 
    / *Condition*: required / *Type*: str /
 
    File minor version.
 
-* ``_tbl_header_testfileheader_version_patch``
+*  ``_tbl_header_testfileheader_version_patch``
 
    / *Condition*: required / *Type*: str /
 
    File patch version.
 
-* ``_tbl_header_testfileheader_keyword``
+*  ``_tbl_header_testfileheader_keyword``
 
    / *Condition*: required / *Type*: str /
 
    File keyword.
 
-* ``_tbl_header_testfileheader_shortdescription``
+*  ``_tbl_header_testfileheader_shortdescription``
 
    / *Condition*: required / *Type*: str /
 
    File short description.
 
-* ``_tbl_header_testexecution_useraccount``
+*  ``_tbl_header_testexecution_useraccount``
 
    / *Condition*: required / *Type*: str /
 
    Tester account who run the execution.
 
-* ``_tbl_header_testexecution_computername``
+*  ``_tbl_header_testexecution_computername``
 
    / *Condition*: required / *Type*: str /
 
    Machine name which is executed on.
 
-* ``_tbl_header_testrequirements_documentmanagement``
+*  ``_tbl_header_testrequirements_documentmanagement``
 
    / *Condition*: required / *Type*: str /
 
    Requirement management information.
 
-* ``_tbl_header_testrequirements_testenvironment``
+*  ``_tbl_header_testrequirements_testenvironment``
 
    / *Condition*: required / *Type*: str /
 
    Requirement environment information.
 
-* ``_tbl_header_testbenchconfig_name``
+*  ``_tbl_header_testbenchconfig_name``
 
    / *Condition*: required / *Type*: str /
 
    Testbench configuration name.
 
-* ``_tbl_header_testbenchconfig_data``
+*  ``_tbl_header_testbenchconfig_data``
 
    / *Condition*: required / *Type*: str /
 
    Testbench configuration data.
 
-* ``_tbl_header_preprocessor_filter``
+*  ``_tbl_header_preprocessor_filter``
 
    / *Condition*: required / *Type*: str /
 
    Preprocessor filter information.
 
-* ``_tbl_header_preprocessor_parameters``
+*  ``_tbl_header_preprocessor_parameters``
 
    / *Condition*: required / *Type*: str /
 
@@ -795,91 +795,91 @@ Create single testcase entry in ``tbl_case`` table immediately.
 
 **Arguments:**
 
-* ``_tbl_case_name``
+*  ``_tbl_case_name``
 
    / *Condition*: required / *Type*: str /
 
    Test case name.
 
-* ``_tbl_case_issue``
+*  ``_tbl_case_issue``
 
    / *Condition*: required / *Type*: str /
 
    Test case issue ID.
 
-* ``_tbl_case_tcid``
+*  ``_tbl_case_tcid``
 
    / *Condition*: required / *Type*: str /
 
    Test case ID (used for testmanagement tool).
 
-* ``_tbl_case_fid``
+*  ``_tbl_case_fid``
 
    / *Condition*: required / *Type*: str /
 
    Test case requirement (function) ID.
 
-* ``_tbl_case_testnumber``
+*  ``_tbl_case_testnumber``
 
    / *Condition*: required / *Type*: int /
 
    Order of test case in file.
 
-* ``_tbl_case_repeatcount``
+*  ``_tbl_case_repeatcount``
 
    / *Condition*: required / *Type*: int /
 
    Test case repeatition count.
 
-* ``_tbl_case_component``
+*  ``_tbl_case_component``
 
    / *Condition*: required / *Type*: str /
 
    Component which test case is belong to. 
 
-* ``_tbl_case_time_start``
+*  ``_tbl_case_time_start``
 
    / *Condition*: required / *Type*: str /
 
    Test case start time as format ``%Y-%m-%d %H:%M:%S``.
 
-* ``_tbl_case_result_main``
+*  ``_tbl_case_result_main``
 
    / *Condition*: required / *Type*: str /
 
    Test case main result.
 
-* ``_tbl_case_result_state``
+*  ``_tbl_case_result_state``
 
    / *Condition*: required / *Type*: str /
 
    Test case completion state.
 
-* ``_tbl_case_result_return``
+*  ``_tbl_case_result_return``
 
    / *Condition*: required / *Type*: int /
 
    Test case result code (as integer).
 
-* ``_tbl_case_counter_resets``
+*  ``_tbl_case_counter_resets``
 
    / *Condition*: required / *Type*: int /
 
    Counter of target reset within test case execution.
 
-* ``_tbl_case_lastlog``
+*  ``_tbl_case_lastlog``
 
    / *Condition*: required / *Type*: str /
 
    Traceback information when test case is failed.
 
-* ``_tbl_test_result_id``
+*  ``_tbl_test_result_id``
 
    / *Condition*: required / *Type*: str /
 
    UUID of test result for linking to file in ``tbl_result`` table. 
 
-* ``_tbl_file_id``
+*  ``_tbl_file_id``
 
    / *Condition*: required / *Type*: int /
 
@@ -887,7 +887,7 @@ Create single testcase entry in ``tbl_case`` table immediately.
       
 **Returns:**
 
-* ``iInsertedID`
+*  ``iInsertedID``
    
    / *Type*: int /
    
@@ -940,97 +940,97 @@ Create single testcase entry in ``tbl_case`` table immediately.
                           _tbl_file_id
                            ):
       """
-Create bulk of test case entries: new test case are buffered and inserted as bulk.
+Create bulk of test case entries: new test cases are buffered and inserted as bulk.
 
 Once ``__NUM_BUFFERD_ELEMENTS_FOR_EXECUTEMANY`` is reached, the creation query is executed.
 
 **Arguments:**
 
-* ``_tbl_case_name``
+*  ``_tbl_case_name``
 
    / *Condition*: required / *Type*: str /
 
    Test case name.
 
-* ``_tbl_case_issue``
+*  ``_tbl_case_issue``
 
    / *Condition*: required / *Type*: str /
 
    Test case issue ID.
 
-* ``_tbl_case_tcid``
+*  ``_tbl_case_tcid``
 
    / *Condition*: required / *Type*: str /
 
    Test case ID (used for testmanagement tool).
 
-* ``_tbl_case_fid``
+*  ``_tbl_case_fid``
 
    / *Condition*: required / *Type*: str /
 
    Test case requirement (function) ID.
 
-* ``_tbl_case_testnumber``
+*  ``_tbl_case_testnumber``
 
    / *Condition*: required / *Type*: int /
 
    Order of test case in file.
 
-* ``_tbl_case_repeatcount``
+*  ``_tbl_case_repeatcount``
 
    / *Condition*: required / *Type*: int /
 
    Test case repeatition count.
 
-* ``_tbl_case_component``
+*  ``_tbl_case_component``
 
    / *Condition*: required / *Type*: str /
 
    Component which test case is belong to. 
 
-* ``_tbl_case_time_start``
+*  ``_tbl_case_time_start``
 
    / *Condition*: required / *Type*: str /
 
    Test case start time as format ``%Y-%m-%d %H:%M:%S``.
 
-* ``_tbl_case_result_main``
+*  ``_tbl_case_result_main``
 
    / *Condition*: required / *Type*: str /
 
    Test case main result.
 
-* ``_tbl_case_result_state``
+*  ``_tbl_case_result_state``
 
    / *Condition*: required / *Type*: str /
 
    Test case completion state.
 
-* ``_tbl_case_result_return``
+*  ``_tbl_case_result_return``
 
    / *Condition*: required / *Type*: int /
 
    Test case result code (as integer).
 
-* ``_tbl_case_counter_resets``
+*  ``_tbl_case_counter_resets``
 
    / *Condition*: required / *Type*: int /
 
    Counter of target reset within test case execution.
 
-* ``_tbl_case_lastlog``
+*  ``_tbl_case_lastlog``
 
    / *Condition*: required / *Type*: str /
 
    Traceback information when test case is failed.
 
-* ``_tbl_test_result_id``
+*  ``_tbl_test_result_id``
 
    / *Condition*: required / *Type*: str /
 
    UUID of test result for linking to file in `tbl_result` table. 
 
-* ``_tbl_file_id``
+*  ``_tbl_file_id``
 
    / *Condition*: required / *Type*: int /
 
@@ -1072,7 +1072,7 @@ Bulk insert test case results.
 
 **Arguments:**
 
-* ``lTestCases``
+*  ``lTestCases``
 
    / *Condition*: required / *Type*: str /
 
@@ -1094,13 +1094,13 @@ Create tag entries.
 
 **Arguments:**
 
-* ``_tbl_test_result_id``
+*  ``_tbl_test_result_id``
 
    / *Condition*: required / *Type*: str /
 
    UUID of test result.
 
-* ``_tbl_usr_result_tags``
+*  ``_tbl_usr_result_tags``
 
    / *Condition*: required / *Type*: str /
 
@@ -1120,13 +1120,13 @@ Create category entry.
 
 **Arguments:**
 
-* ``_tbl_test_result_id``
+*  ``_tbl_test_result_id``
 
    / *Condition*: required / *Type*: str /
 
    UUID of test result.
 
-* ``tbl_result_category_main``
+*  ``tbl_result_category_main``
 
    / *Condition*: required / *Type*: str /
 
@@ -1147,19 +1147,19 @@ Create start-end time entry.
 
 **Arguments:**
 
-* ``_tbl_test_result_id``
+*  ``_tbl_test_result_id``
 
    / *Condition*: required / *Type*: str /
 
    UUID of test result.
 
-* ``_tbl_result_time_start``
+*  ``_tbl_result_time_start``
 
    / *Condition*: required / *Type*: str /
 
    Result start time as format ``%Y-%m-%d %H:%M:%S``.
 
-* ``_tbl_result_time_end``
+*  ``_tbl_result_time_end``
 
    / *Condition*: required / *Type*: str /
 
@@ -1184,7 +1184,7 @@ Get existing categories.
 
 **Returns:**
 
-* ``arCategories``
+*  ``arCategories``
 
    / *Type*: list /
    
@@ -1210,19 +1210,19 @@ Create abort reason entry.
 
 **Arguments:**
 
-* ``_tbl_test_result_id``
+*  ``_tbl_test_result_id``
 
    / *Condition*: required / *Type*: str /
 
    UUID of test result.
 
-* ``_tbl_abort_reason``
+*  ``_tbl_abort_reason``
 
    / *Condition*: required / *Type*: str /
 
    Abort reason.
 
-* ``_tbl_abort_message``
+*  ``_tbl_abort_message``
 
    / *Condition*: required / *Type*: str /
 
@@ -1246,13 +1246,13 @@ Create reanimation entry.
 
 **Arguments:**
 
-* ``_tbl_test_result_id``
+*  ``_tbl_test_result_id``
 
    / *Condition*: required / *Type*: str /
 
    UUID of test result.
 
-* ``_tbl_num_of_reanimation``
+*  ``_tbl_num_of_reanimation``
 
    / *Condition*: required / *Type*: int /
 
@@ -1272,13 +1272,13 @@ Create CCR data per test case.
 
 **Arguments:**
 
-* ``_tbl_test_case_id``
+*  ``_tbl_test_case_id``
 
    / *Condition*: required / *Type*: int /
 
    test case ID.
 
-* ``lCCRdata``
+*  ``lCCRdata``
 
    / *Condition*: required / *Type*: list /
 
@@ -1299,12 +1299,12 @@ Create CCR data per test case.
       """
 Finish upload:
 
-   - First do bulk insert of rest of test cases if buffer is not empty.
-   - Then set state to "new report".
+* First do bulk insert of rest of test cases if buffer is not empty.
+* Then set state to "new report".
 
 **Arguments:**
 
-* ``_tbl_test_result_id``
+*  ``_tbl_test_result_id``
 
    / *Condition*: required / *Type*: str /
 
@@ -1343,7 +1343,7 @@ Call ``update_evtbl`` stored procedure to update provided ``test_result_id``.
 
 **Arguments:**
 
-* ``_tbl_test_result_id``
+*  ``_tbl_test_result_id``
 
    / *Condition*: required / *Type*: str /
 
@@ -1362,7 +1362,7 @@ Switch ``foreign_key_checks`` flag.
 
 **Arguments:**
 
-* ``enable``
+*  ``enable``
 
    / *Condition*: optional / *Type*: bool / *Default*: True /
 
@@ -1381,7 +1381,7 @@ Get latest file ID from ``tbl_file`` table.
 
 **Arguments:**
 
-* ``_tbl_test_result_id``
+*  ``_tbl_test_result_id``
 
    / *Condition*: required / *Type*: str /
 
@@ -1389,7 +1389,7 @@ Get latest file ID from ``tbl_file`` table.
 
 **Returns:**
 
-* ``_tbl_file_id``
+*  ``_tbl_file_id``
 
    / *Type*: int /
 
@@ -1405,13 +1405,13 @@ Update test file end time.
 
 **Arguments:**
 
-* ``_tbl_file_id``
+*  ``_tbl_file_id``
 
    / *Condition*: required / *Type*: int /
 
    File ID to be updated.
 
-* ``_tbl_file_time_end``
+*  ``_tbl_file_time_end``
 
    / *Condition*: required / *Type*: str /
 
@@ -1430,13 +1430,13 @@ Update test result end time.
 
 **Arguments:**
 
-* ``_tbl_test_result_id``
+*  ``_tbl_test_result_id``
 
    / *Condition*: required / *Type*: int /
 
    Result UUID to be updated.
 
-* ``_tbl_result_time_end``
+*  ``_tbl_result_time_end``
 
    / *Condition*: required / *Type*: str /
 
@@ -1455,7 +1455,7 @@ Verify the given test result UUID is existing in ``tbl_result`` table or not.
 
 **Arguments:**
 
-* ``_tbl_test_result_id``
+*  ``_tbl_test_result_id``
 
    / *Condition*: required / *Type*: int /
 
@@ -1463,7 +1463,7 @@ Verify the given test result UUID is existing in ``tbl_result`` table or not.
 
 **Returns:**
 
-* ``bExisting`` 
+*  ``bExisting`` 
 
    / *Type*: bool /
 
