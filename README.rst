@@ -167,12 +167,12 @@ wonderful the execution result is displayed as below figures:
 
 Dashboard view:
 
-.. image:: doc/images/Dashboard.png
+.. image:: packagedoc/additional_docs/pictures/Dashboard.png
    :alt: Dashboard view
 
 Datatable view:
 
-.. image:: doc/images/Datatable.png
+.. image:: packagedoc/additional_docs/pictures/Datatable.png
    :alt: Datatable view
 
 Contribution

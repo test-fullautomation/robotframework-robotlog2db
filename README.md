@@ -155,11 +155,11 @@ how wonderful the execution result is displayed as below figures:
 
 Dashboard view:
 
-![Dashboard view](doc/images/Dashboard.png)
+![Dashboard view](packagedoc/additional_docs/pictures/Dashboard.png)
 
 Datatable view:
 
-![Datatable view](doc/images/Datatable.png)
+![Datatable view](packagedoc/additional_docs/pictures/Datatable.png)
 
 ## Contribution
 
