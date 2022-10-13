@@ -57,11 +57,11 @@ you can run it directly as operation system\'s command.
 tool requires the robot `output.xml` result file(s) and
 TestResultWebApp\'s database information for importing.
 
-Try with below command to get tools\'s uage :
+Try with below command to get tools\'s uage
 
     RobotResults2DB -h
 
-The usage should be showed as below: :
+The usage should be showed as below:
 
     usage: RobotResults2DB (XMLoutput to database importer) [-h] [-v] [-recursive] [-dryrun] [-UUID UUID]
                                                           [--variant VARIANT] [--versions VERSIONS] [--config CONFIG]
@@ -89,24 +89,24 @@ The usage should be showed as below: :
     --config CONFIG      configuration json file for component mapping information
 
 The below command is simple usage with all required arguments to import
-robot results into RQM: :
+robot results into TestResultWebApp\'s database:
 
     RobotResults2DB <outputfile> <server> <user> <password> <database>
 
-Besides the executable file, you can also run tool as a Python module :
+Besides the executable file, you can also run tool as a Python module
 
     python -m RobotResults2DB <outputfile> <server> <user> <password> <database>
 
 ## Example
 
-In order the import the robot result(s) to RQM, we need the `output.xml`
-result file.
+In order the import the robot result(s) to TestResultWebApp\'s database,
+we need the `output.xml` result file.
 
 So, firstly execute the robot testcase(s) to get the `output.xml` result
 file.
 
 Sample robot testcase which contains neccessary information for
-importing into RQM: :
+importing into TestResultWebApp\'s database:
 
     *** Settings ***
     # Test execution level
@@ -132,9 +132,37 @@ importing into RQM: :
        [Tags]   ISSUE-RTC-003   TCID-1002   FID-113
        Log       This is Testcase 01
 
+---
+**Note:**
+In case you are using RobotFramework AIO, these below `Metadata`
+definitions will be handled implicitly by [RobotFramework Testsuites
+Management](https://github.com/test-fullautomation/robotframework-testsuitesmanagement)
+library within Suite Setup.
+
+-   project
+-   version_sw
+-   version_hw
+-   version_test
+-   machine
+-   tester
+-   testtool
+
+So that you do not need to define them in your Robot testcase(s).
+
+However, if these `Metadata` definitions are already missing in the
+RobotFramework output result file, you can specific them when executing
+the RobotResults2DB tool with the optional arguments:
+
+-   `--variant VARIANT`: Project definitions
+-   `--versions VERSIONS`: Versions (Software;Hardware;Test)
+    definitions.
+-   `--config CONFIG`: Project, versions or component mapping
+    definitions.
+---
+
 After getting `output.xml` result file, try with below sample command to
 import that result into TestResultWebApp\'s database which is hosted at
-*localhost* as below sample command :
+*localhost* as below sample command
 
     RobotResults2DB output.xml localhost test_user test_pw test_db
 
