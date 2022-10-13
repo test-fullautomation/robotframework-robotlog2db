@@ -1,15 +1,3 @@
-> Licensed under the Apache License, Version 2.0 (the \"License\"); you
-> may not use this file except in compliance with the License. You may
-> obtain a copy of the License at
->
-> <http://www.apache.org/licenses/LICENSE-2.0>
->
-> Unless required by applicable law or agreed to in writing, software
-> distributed under the License is distributed on an \"AS IS\" BASIS,
-> WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-> implied. See the License for the specific language governing
-> permissions and limitations under the License.
-
 # RobotResults2DB
 
 [![License: Apache
@@ -57,7 +45,7 @@ package with below steps:
     python setup.py install
 
 After succesful installation, the executable file **RobotResults2DB**
-will be available (under *Scripts* folder of python on Windows and
+will be available (under *Scripts* folder of Python on Windows and
 *\~/.local/bin/* folder on Linux).
 
 In case above location is added to **PATH** environment variable then
@@ -100,12 +88,12 @@ The usage should be showed as below: :
     --versions VERSIONS  metadata: Versions (Software;Hardware;Test) to be set for this import (semicolon separated).
     --config CONFIG      configuration json file for component mapping information
 
-The below command is simple usage witth all required argurments to
-import robot results into RQM: :
+The below command is simple usage with all required arguments to import
+robot results into RQM: :
 
     RobotResults2DB <outputfile> <server> <user> <password> <database>
 
-Besides the executable file, you can also run tool as a python module :
+Besides the executable file, you can also run tool as a Python module :
 
     python -m RobotResults2DB <outputfile> <server> <user> <password> <database>
 
@@ -114,7 +102,7 @@ Besides the executable file, you can also run tool as a python module :
 In order the import the robot result(s) to RQM, we need the `output.xml`
 result file.
 
-So, firslty execute the robot testcase(s) to get the `output.xml` result
+So, firstly execute the robot testcase(s) to get the `output.xml` result
 file.
 
 Sample robot testcase which contains neccessary information for

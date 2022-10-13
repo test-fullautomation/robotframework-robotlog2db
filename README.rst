@@ -63,7 +63,7 @@ with below steps:
    python setup.py install
 
 After succesful installation, the executable file **RobotResults2DB** 
-will be available (under *Scripts* folder of python on Windows 
+will be available (under *Scripts* folder of Python on Windows 
 and *~/.local/bin/* folder on Linux).
 
 In case above location is added to **PATH** environment variable 
@@ -110,13 +110,13 @@ The usage should be showed as below:
    --config CONFIG      configuration json file for component mapping information
 
 
-The below command is simple usage witth all required argurments to import 
+The below command is simple usage with all required arguments to import 
 robot results into RQM:
 ::
 
    RobotResults2DB <outputfile> <server> <user> <password> <database>
 
-Besides the executable file, you can also run tool as a python module
+Besides the executable file, you can also run tool as a Python module
 ::
 
    python -m RobotResults2DB <outputfile> <server> <user> <password> <database>
@@ -126,7 +126,7 @@ Example
 -------
 In order the import the robot result(s) to RQM, we need the ``output.xml`` result file.
 
-So, firslty execute the robot testcase(s) to get the ``output.xml`` result file.
+So, firstly execute the robot testcase(s) to get the ``output.xml`` result file.
 
 Sample robot testcase which contains neccessary information for importing into RQM:
 ::
