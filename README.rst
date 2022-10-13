@@ -72,10 +72,10 @@ then you can run it directly as operation system's command.
 Usage
 -----
 
-RobotResults2DB_ tool requires the robot ``output.xml`` result file(s) and 
+RobotResults2DB_ tool requires the RobotFramework ``output.xml`` result file(s) and 
 TestResultWebApp's database information for importing.
 
-Try with below command to get tools's uage
+Try with below command to get tools's usage
 
 ::
 
