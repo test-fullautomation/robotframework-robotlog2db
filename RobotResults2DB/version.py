@@ -18,5 +18,5 @@
 #
 # Version and date of RobotResults2DB
 #
-VERSION      = "1.2.1"
-VERSION_DATE = "22.08.2022"
+VERSION      = "1.2.2"
+VERSION_DATE = "13.10.2022"
