@@ -39,8 +39,8 @@ import pypandoc
 
 from PythonExtensionsCollection.String.CString import CString
 
-from RobotResults2DB.version import VERSION
-from RobotResults2DB.version import VERSION_DATE
+from RobotLog2DB.version import VERSION
+from RobotLog2DB.version import VERSION_DATE
 
 col.init(autoreset=True)
 COLBR = col.Style.BRIGHT + col.Fore.RED
