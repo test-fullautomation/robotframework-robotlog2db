@@ -11,7 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+from .robotlog2db import RobotLog2DB
 
-from .robot2db import RobotResults2DB, Logger
-from .version import VERSION
-from .CDataBase import CDataBase
+if __name__ == "__main__":
+   RobotLog2DB()

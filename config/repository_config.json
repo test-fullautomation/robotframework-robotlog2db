@@ -1,11 +1,11 @@
 {
-   "REPOSITORYNAME" : "robotframework-testresultwebapptool",
-   "PACKAGENAME" : "RobotResults2DB",
+   "REPOSITORYNAME" : "robotframework-robotlog2db",
+   "PACKAGENAME" : "RobotLog2DB",
    "AUTHOR" : "Tran Duy Ngoan",
    "AUTHOREMAIL" : "Ngoan.TranDuy@vn.bosch.com",
    "DESCRIPTION" : "Imports robot result(s) to TestResultWebApp database",
    "LONGDESCRIPTIONCONTENTTYPE" : "text/markdown",
-   "URL" : "https://github.com/test-fullautomation/robotframework-testresultwebapptool",
+   "URL" : "https://github.com/test-fullautomation/robotframework-robotlog2db",
    "PROGRAMMINGLANGUAGE" : "Programming Language :: Python :: 3",
    "LICENCE" : "License :: OSI Approved :: Apache Software License",
    "OPERATINGSYSTEM" : "Operating System :: OS Independent",
@@ -16,5 +16,5 @@
    "INSTALLREQUIRES" : ["pypandoc","colorama","mysqlclient","GenPackageDoc","PythonExtensionsCollection"],
    "PACKAGEDATA" : ["*.pdf"],
    "PACKAGEDOC" : "./packagedoc",
-   "CONSOLESCRIPTS" : ["RobotResults2DB = RobotResults2DB.robot2db:RobotResults2DB"]
+   "CONSOLESCRIPTS" : ["RobotLog2DB = RobotLog2DB.robotlog2db:RobotLog2DB"]
 }

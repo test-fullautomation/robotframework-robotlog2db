@@ -16,7 +16,7 @@
 #
 # **************************************************************************************************************
 #
-# Version and date of RobotResults2DB
+# Version and date of RobotLog2DB
 #
-VERSION      = "1.2.2"
-VERSION_DATE = "13.10.2022"
+VERSION      = "1.2.3"
+VERSION_DATE = "10.11.2022"
