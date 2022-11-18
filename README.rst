@@ -74,7 +74,7 @@ Usage
 
 RobotLog2DB_ requires the Robot Framework result file(s) which contains the 
 output result in XML format (default name is ``output.xml``) and 
-TestResultWebApp's database information for importing.
+TestResultWebApp_'s database information for importing.
 
 Use below command to get tools's usage
 

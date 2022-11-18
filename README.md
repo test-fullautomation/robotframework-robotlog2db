@@ -56,7 +56,8 @@ you can run it directly as operation system\'s command.
 [RobotLog2DB](https://github.com/test-fullautomation/robotframework-robotlog2db)
 requires the Robot Framework result file(s) which contains the output
 result in XML format (default name is `output.xml`) and
-TestResultWebApp\'s database information for importing.
+[TestResultWebApp](https://github.com/test-fullautomation/TestResultWebApp)\'s
+database information for importing.
 
 Use below command to get tools\'s usage
 
