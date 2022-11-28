@@ -376,6 +376,7 @@ Avalable arguments in command line:
    - `database` : database name.
    - `-recursive` : if True, then the path is searched recursively for log files to be imported.
    - `-dryrun` : if True, then just check the RQM authentication and show what would be done.
+   - `-append` : if True, then allow to append new result(s) to existing execution result UUID which is provided by -UUID argument.
    - `-UUID` : UUID used to identify the import and version ID on TestResultWebApp.
    - `-variant` : variant name to be set for this import.
    - `-versions` : metadata: Versions (Software;Hardware;Test) to be set for this import.
@@ -404,8 +405,10 @@ Avalable arguments in command line:
    cmdlineparser.add_argument('database', type=str, help='database schema for database login.')
    cmdlineparser.add_argument('-recursive', action="store_true", help='if set, then the path is searched recursively for output files to be imported.')
    cmdlineparser.add_argument('-dryrun', action="store_true", help='if set, then just show what would be done.')
+   cmdlineparser.add_argument('-append', action="store_true", help='is used in combination with -UUID <UUID>.' +\
+                              ' If set, allow to append new result(s) to existing execution result UUID in -UUID argument.')
    cmdlineparser.add_argument('-UUID', type=str, help='UUID used to identify the import and version ID on webapp.' + \
-                              ' If not provided RobotLog2DB will generate a UUID for the whole import.')
+                              ' If not provided RobotLog2DB will generate an UUID for the whole import.')
    cmdlineparser.add_argument('--variant', type=str, help='variant name to be set for this import.')
    cmdlineparser.add_argument('--versions', type=str, help='metadata: Versions (Software;Hardware;Test) to be set for this import (semicolon separated).')
    cmdlineparser.add_argument('--config', type=str, help='configuration json file for component mapping information.')
@@ -964,6 +967,7 @@ Flow to import Robot results to database:
    * `database` : database name.
    * `recursive` : if True, then the path is searched recursively for log files to be imported.
    * `dryrun` : if True, then just check the RQM authentication and show what would be done.
+   * `-append` : if True, then allow to append new result(s) to existing execution result UUID which is provided by -UUID argument.
    * `UUID` : UUID used to identify the import and version ID on TestResultWebApp.
    * `variant` : variant name to be set for this import.
    * `versions` : metadata: Versions (Software;Hardware;Test) to be set for this import.
@@ -1096,6 +1100,8 @@ Flow to import Robot results to database:
          _tbl_test_result_id = args.UUID
       else:
          _tbl_test_result_id = str(uuid.uuid4())
+         if args.append:
+            Logger.log_warning("'-append' argument should be used in combination with '-UUID <UUID>` argument.")
       
       # Process start/end time info
       if len(sources) > 1:
@@ -1126,13 +1132,30 @@ Flow to import Robot results to database:
                                  _tbl_result_reporting_qualitygate)
       Logger.log("Created test execution result for version '%s' successfully: %s"%(_tbl_result_version_sw_target,str(_tbl_test_result_id)))
    except Exception as reason:
-      Logger.log_error("Could not create new execution result. Reason: %s"%reason, fatal_error=True)
+      # MySQL error code:
+      # Error Code   | SQLSTATE	|Error	      |Description                     
+      # -------------+-----------+--------------+-------------------------------
+      # 1062	      | 23000	   |ER_DUP_ENTRY	|Duplicate entry '%s' for key %d
+      if reason.args[0] == 1062:
+         # check -append argument
+         if args.append:
+            Logger.log(f"Append to existing test execution result UUID '{_tbl_test_result_id}'.")
+         else:
+            error_indent = len(Logger.prefix_fatalerror)*' '
+            Logger.log_error(f"Execution result with UUID '{_tbl_test_result_id}' is already existing. \
+               \n{error_indent}Please use other UUID (or remove '-UUID' argument from your command) for new execution result. \
+               \n{error_indent}Or add '-append' argument in your command to append new result(s) to this existing UUID.", 
+               fatal_error=True)
+      else:
+         Logger.log_error("Could not create new execution result. Reason: %s"%reason, fatal_error=True)
 
    suite_info = process_suite(db, result.suite, _tbl_test_result_id, metadata_info, dConfig)
 
    if not Logger.dryrun:
       db.vUpdateEvtbls()
       db.vFinishTestResult(_tbl_test_result_id)
+      if args.append:
+         db.vUpdateEvtbl(_tbl_test_result_id)
 
    # 5. Disconnect from database
    db.disconnect()
