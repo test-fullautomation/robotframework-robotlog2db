@@ -1,8 +1,5 @@
 # RobotLog2DB
 
-[![License: Apache
-v2](https://img.shields.io/pypi/l/robotframework.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
-
 ## Table of Contents
 
 -   [Getting Started](#getting-started)
@@ -10,7 +7,7 @@ v2](https://img.shields.io/pypi/l/robotframework.svg)](http://www.apache.org/lic
 -   [Usage](#usage)
 -   [Example](#example)
 -   [Contribution](#contribution)
--   [Sourcecode Documentation](#documentation)
+-   [Sourcecode Documentation](#sourcecode-documentation)
 -   [Feedback](#feedback)
 -   [About](#about)
     -   [Maintainers](#maintainers)
