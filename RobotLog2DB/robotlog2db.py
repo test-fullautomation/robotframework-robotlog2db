@@ -80,6 +80,52 @@ CONFIG_SCHEMA = {
    "version_sw": str,
 }
 
+DB_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+DB_STR_FIELD_MAXLENGTH = {
+   "project" : 20,
+   "variant" : 20,
+   "branch"  : 20,
+   "version_sw_target" : 100,
+   "version_sw_test" : 100,
+   "version_hardware" : 100,
+   "jenkinsurl" : 255,
+   "reporting_qualitygate" : 45,
+   "name" : 255,
+   "tester_account" : 100,
+   "tester_machine" : 45,
+   "origin" : 45,
+   "testtoolconfiguration_testtoolname" : 45,
+   "testtoolconfiguration_testtoolversionstring" : 255,
+   "testtoolconfiguration_projectname" : 255,
+   "testtoolconfiguration_logfileencoding" : 45,
+   "testtoolconfiguration_pythonversion" : 255,
+   "testtoolconfiguration_testfile" : 255,
+   "testtoolconfiguration_logfilepath" : 255,
+   "testtoolconfiguration_logfilemode" : 45,
+   "testtoolconfiguration_ctrlfilepath" : 255,
+   "testtoolconfiguration_configfile" : 255,
+   "testtoolconfiguration_confname" : 255,
+   "testfileheader_author" : 255,
+   "testfileheader_project" : 255,
+   "testfileheader_testfiledate" : 255,
+   "testfileheader_version_major" : 45,
+   "testfileheader_version_minor" : 45,
+   "testfileheader_version_patch" : 45,
+   "testfileheader_keyword" : 255,
+   "testfileheader_shortdescription" : 255,
+   "testexecution_useraccount" : 255,
+   "testexecution_computername" : 255,
+   "testrequirements_documentmanagement" : 255,
+   "testrequirements_testenvironment" : 255,
+   "testbenchconfig_name" : 255,
+   "preprocessor_filter" : 45,
+   "issue" : 50,
+   "tcid" : 50,
+   "fid" : 255,
+   "component" : 45
+}
+
 class Logger():
    """
 Logger class for logging message.
@@ -257,6 +303,104 @@ Verify the given UUID is valid or not.
       bValid = True
    
    return bValid
+
+def is_valid_config(dConfig, dSchema=CONFIG_SCHEMA, bExitOnFail=True):
+   """
+Validate the json configuration base on given schema.
+
+Default schema just supports ``component``, ``variant`` and ``version_sw``.
+   
+.. code:: python
+
+   CONFIG_SCHEMA = {
+      "component" : [str, dict],
+      "variant"   : str,
+      "version_sw": str,
+   }
+
+**Arguments:**
+
+*  ``dConfig``
+
+   / *Condition*: required / *Type*: dict /
+
+   Json configuration object to be verified.
+
+*  ``dSchema``
+
+   / *Condition*: optional / *Type*: dict / *Default*: CONFIG_SCHEMA /
+
+   Schema for the validation.
+
+*  ``bExitOnFail``
+
+   / *Condition*: optional / *Type*: bool / *Default*: True /
+
+   If True, exit tool in case the validation is fail.
+
+**Returns:**
+
+*  ``bValid``
+
+   / *Type*: bool /
+
+   True if the given json configuration data is valid.
+   """
+   bValid = True
+   for key in dConfig:
+      if key in dSchema.keys():
+         # List of support types
+         if isinstance(dSchema[key], list):
+            if type(dConfig[key]) not in dSchema[key]:
+               bValid = False
+         # Fixed type
+         else:
+            if type(dConfig[key]) != dSchema[key]:
+               bValid = False
+
+         if not bValid:
+            Logger.log_error(f"Value of '{key}' has wrong type '{type(dSchema[key])}' in configuration json  file.", 
+                             fatal_error=bExitOnFail)
+
+      else:
+         bValid = False
+         Logger.log_error(f"Invalid key '{key}' in configuration json file.", 
+                          fatal_error=bExitOnFail)
+   
+   return bValid
+
+def validate_db_str_field(field, value):
+   """
+Validate the string value for database field bases on its acceptable length.\
+The error will be thrown and tool terminates if the verification is failed.
+
+**Arguments:**
+
+*  ``field``
+
+   / *Condition*: required / *Type*: str /
+
+   Field name in the database.
+
+*  ``value``
+
+   / *Condition*: required / *Type*: str /
+
+   String value to be verified.
+
+**Returns:**
+
+   / *Type*: str /
+
+   String value if the verification is fine.
+   """
+   if field in DB_STR_FIELD_MAXLENGTH:
+      if len(value) > DB_STR_FIELD_MAXLENGTH[field]:
+         Logger.log_error(f"Provided value '{value}' for '{field}' is longer than acceptable {DB_STR_FIELD_MAXLENGTH[field]} chars.", fatal_error=True)
+      else:
+         return value
+   else:
+      Logger.log_error(f"Invalid field '{field}' to import into database", fatal_error=True)
 
 def get_from_tags(lTags, reInfo):
    """
@@ -819,71 +963,6 @@ Parse information from configuration file:
                        fatal_error=True)
    return dConfig
 
-def is_valid_config(dConfig, dSchema=CONFIG_SCHEMA, bExitOnFail=True):
-   """
-Validate the json configuration base on given schema.
-
-Default schema just supports ``component``, ``variant`` and ``version_sw``.
-   
-.. code:: python
-
-   CONFIG_SCHEMA = {
-      "component" : [str, dict],
-      "variant"   : str,
-      "version_sw": str,
-   }
-
-**Arguments:**
-
-*  ``dConfig``
-
-   / *Condition*: required / *Type*: dict /
-
-   Json configuration object to be verified.
-
-*  ``dSchema``
-
-   / *Condition*: optional / *Type*: dict / *Default*: CONFIG_SCHEMA /
-
-   Schema for the validation.
-
-*  ``bExitOnFail``
-
-   / *Condition*: optional / *Type*: bool / *Default*: True /
-
-   If True, exit tool in case the validation is fail.
-
-**Returns:**
-
-*  ``bValid``
-
-   / *Type*: bool /
-
-   True if the given json configuration data is valid.
-   """
-   bValid = True
-   for key in dConfig:
-      if key in dSchema.keys():
-         # List of support types
-         if isinstance(dSchema[key], list):
-            if type(dConfig[key]) not in dSchema[key]:
-               bValid = False
-         # Fixed type
-         else:
-            if type(dConfig[key]) != dSchema[key]:
-               bValid = False
-
-         if not bValid:
-            Logger.log_error(f"Value of '{key}' has wrong type '{type(dSchema[key])}' in configuration json  file.", 
-                             fatal_error=bExitOnFail)
-
-      else:
-         bValid = False
-         Logger.log_error(f"Invalid key '{key}' in configuration json file.", 
-                          fatal_error=bExitOnFail)
-   
-   return bValid
-
 def normalize_path(sPath):
    """
 Normalize path file.
@@ -961,8 +1040,8 @@ Import robot results from ``output.xml`` to TestResultWebApp's database.
 Flow to import Robot results to database: 
 
 1. Process provided arguments from command line.
-2. Connect to database.
-3. Parse Robot results.
+2. Parse Robot results.
+3. Connect to database.
 4. Import results into database.
 5. Disconnect from database.
 
@@ -995,6 +1074,52 @@ Flow to import Robot results to database:
    args = __process_commandline()
    Logger.config(dryrun=args.dryrun)
 
+   # 2. Parse results from Robotframework xml result file(s)
+   sLogFileType="NONE"
+   if os.path.exists(args.resultxmlfile):
+      sLogFileType="PATH"
+      if os.path.isfile(args.resultxmlfile):
+         sLogFileType="FILE"  
+   else:
+      Logger.log_error(f"Given resultxmlfile is not existing: '{args.resultxmlfile}'", 
+                       fatal_error=True)
+
+   listEntries=[]
+   if sLogFileType=="FILE":
+      listEntries.append(args.resultxmlfile)
+   else:
+      if args.recursive:
+         Logger.log("Searching *.xml result files recursively...")
+         for root, _, files in os.walk(args.resultxmlfile):
+            for file in files:
+               if file.endswith(".xml"):
+                  listEntries.append(os.path.join(root, file))
+                  Logger.log(os.path.join(root, file), indent=2)
+      else:
+         Logger.log("Searching *.xml result files...")
+         for file in os.listdir(args.resultxmlfile):
+            if file.endswith(".xml"):
+               listEntries.append(os.path.join(args.resultxmlfile, file))
+               Logger.log(os.path.join(args.resultxmlfile, file), indent=2)
+
+      # Terminate tool with error when no logfile under provided folder
+      if len(listEntries) == 0:
+         Logger.log_error(f"No *.xml result file under '{args.resultxmlfile}' folder.", 
+                          fatal_error=True)
+
+   sources = tuple(listEntries)
+   result = ExecutionResult(*sources)
+   result.configure()
+
+   # get metadata from top level of testsuite
+   metadata_info = {}
+   if result.suite != None:
+      metadata_info = process_suite_metadata(result.suite)
+
+   else:
+      Logger.log_error("Could not get suite data from xml result file", 
+                       fatal_error=True)
+
    # Validate provided UUID
    if args.UUID!=None:
       if is_valid_uuid(args.UUID):
@@ -1020,7 +1145,8 @@ Flow to import Robot results to database:
       else:
          Logger.log_error(f"The provided config file is not existing: '{args.config}'" , 
                           fatal_error=True)
-   # 2. Connect to database
+
+   # 3. Connect to database
    db=CDataBase()
    try:
       db.connect(args.server,
@@ -1031,52 +1157,6 @@ Flow to import Robot results to database:
       Logger.log_error(f"Could not connect to database: '{reason}'", 
                        fatal_error=True)
 
-   # 3. Parse results from Robotframework xml result file(s)
-   sLogFileType="NONE"
-   if os.path.exists(args.resultxmlfile):
-      sLogFileType="PATH"
-      if os.path.isfile(args.resultxmlfile):
-         sLogFileType="FILE"  
-   else:
-      Logger.log_error(f"Resultxmlfile is not existing: '{args.resultxmlfile}'", 
-                       fatal_error=True)
-
-   listEntries=[]
-   if sLogFileType=="FILE":
-      listEntries.append(args.resultxmlfile)
-   else:
-      if args.recursive:
-         Logger.log("Searching log files recursively...")
-         for root, _, files in os.walk(args.resultxmlfile):
-            for file in files:
-               if file.endswith(".xml"):
-                  listEntries.append(os.path.join(root, file))
-                  Logger.log(os.path.join(root, file), indent=2)
-      else:
-         Logger.log("Searching log files...")
-         for file in os.listdir(args.resultxmlfile):
-            if file.endswith(".xml"):
-               listEntries.append(os.path.join(args.resultxmlfile, file))
-               Logger.log(os.path.join(args.resultxmlfile, file), indent=2)
-
-      # Terminate tool with error when no logfile under provided folder
-      if len(listEntries) == 0:
-         Logger.log_error(f"No logfile under '{args.resultxmlfile}' folder.", 
-                          fatal_error=True)
-
-   sources = tuple(listEntries)
-   result = ExecutionResult(*sources)
-   result.configure()
-
-   # get metadata from top level of testsuite
-   metadata_info = {}
-   if result.suite != None:
-      metadata_info = process_suite_metadata(result.suite)
-
-   else:
-      Logger.log_error("Could not get suite data from xml result file", 
-                       fatal_error=True)
-
    # 4. Import results into database
    #    Create new execution result in database
    #    |
@@ -1085,11 +1165,13 @@ Flow to import Robot results to database:
    #        '---Create new test result(s) 
    try:
       # Process variant info
-      _tbl_prj_project = _tbl_prj_variant = metadata_info['project']
       if args.variant!=None and args.variant.strip() != "":
          _tbl_prj_project = _tbl_prj_variant = args.variant.strip()
       elif dConfig != None and 'variant' in dConfig:
          _tbl_prj_project = _tbl_prj_variant = dConfig['variant']
+      else:
+         _tbl_prj_project = _tbl_prj_variant = validate_db_str_field("project", 
+                                                      metadata_info['project'])
 
       # Process versions info
       # Versions info is limited to 100 chars, otherwise an error is raised
