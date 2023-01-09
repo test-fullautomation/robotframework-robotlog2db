@@ -1203,7 +1203,7 @@ Flow to import Robot results to database:
       else:
          _tbl_test_result_id = str(uuid.uuid4())
          if args.append:
-            Logger.log_warning("'--append' argument should be used in combination with '--UUID <UUID>` argument.")
+            Logger.log_warning("'--append' argument should be used in combination with '--UUID <UUID>' argument.")
       
       # Process start/end time info
       if len(sources) > 1:
