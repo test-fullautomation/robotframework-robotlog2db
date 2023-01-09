@@ -11,7 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-# *******************************************************************************
+# ******************************************************************************
 #
 # File: robotlog2db.py
 #
@@ -36,7 +36,7 @@
 #                the import.
 #  - Try to extract metadata from suites incase many suite levels in result.
 #
-# *******************************************************************************
+# ******************************************************************************
 
 import re
 import uuid
@@ -80,6 +80,52 @@ CONFIG_SCHEMA = {
    "version_sw": str,
 }
 
+DB_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+DB_STR_FIELD_MAXLENGTH = {
+   "project" : 20,
+   "variant" : 20,
+   "branch"  : 20,
+   "version_sw_target" : 100,
+   "version_sw_test" : 100,
+   "version_hardware" : 100,
+   "jenkinsurl" : 255,
+   "reporting_qualitygate" : 45,
+   "name" : 255,
+   "tester_account" : 100,
+   "tester_machine" : 45,
+   "origin" : 45,
+   "testtoolconfiguration_testtoolname" : 45,
+   "testtoolconfiguration_testtoolversionstring" : 255,
+   "testtoolconfiguration_projectname" : 255,
+   "testtoolconfiguration_logfileencoding" : 45,
+   "testtoolconfiguration_pythonversion" : 255,
+   "testtoolconfiguration_testfile" : 255,
+   "testtoolconfiguration_logfilepath" : 255,
+   "testtoolconfiguration_logfilemode" : 45,
+   "testtoolconfiguration_ctrlfilepath" : 255,
+   "testtoolconfiguration_configfile" : 255,
+   "testtoolconfiguration_confname" : 255,
+   "testfileheader_author" : 255,
+   "testfileheader_project" : 255,
+   "testfileheader_testfiledate" : 255,
+   "testfileheader_version_major" : 45,
+   "testfileheader_version_minor" : 45,
+   "testfileheader_version_patch" : 45,
+   "testfileheader_keyword" : 255,
+   "testfileheader_shortdescription" : 255,
+   "testexecution_useraccount" : 255,
+   "testexecution_computername" : 255,
+   "testrequirements_documentmanagement" : 255,
+   "testrequirements_testenvironment" : 255,
+   "testbenchconfig_name" : 255,
+   "preprocessor_filter" : 45,
+   "issue" : 50,
+   "tcid" : 50,
+   "fid" : 255,
+   "component" : 45
+}
+
 class Logger():
    """
 Logger class for logging message.
@@ -97,7 +143,7 @@ Logger class for logging message.
    dryrun = False
 
    @classmethod
-   def config(cls, output_console=True, output_logfile=None, indent=0, dryrun=False):
+   def config(cls, output_console=True, output_logfile=None, dryrun=False):
       """
 Configure Logger class.
 
@@ -114,12 +160,6 @@ Configure Logger class.
    / *Condition*: optional / *Type*: str / *Default*: None /
 
    Path to log file output.
-
-*  ``indent``
-
-   / *Condition*: optional / *Type*: int / *Default*: 0 /
-
-   Offset indent.
 
 *  ``dryrun``
 
@@ -169,7 +209,8 @@ Write log message to console/file output.
       if color==None:
          color = cls.color_normal
       if cls.output_console:
-         print(cls.prefix_all + cls.color_reset + color + " "*indent + msg + cls.color_reset)
+         print(cls.prefix_all + cls.color_reset + color + " "*indent + msg + 
+               cls.color_reset)
       if cls.output_logfile!=None and os.path.isfile(cls.output_logfile):
          with open(cls.output_logfile, 'a') as f:
             f.write(" "*indent + msg)
@@ -223,7 +264,7 @@ Write error message to console/file output.
 
       cls.log(prefix+str(msg), cls.color_error)
       if fatal_error:
-         cls.log("%s has been stopped!"%(sys.argv[0]), cls.color_error)
+         cls.log(f"{sys.argv[0]} has been stopped!", cls.color_error)
          exit(1)
 
 def is_valid_uuid(uuid_to_test, version=4):
@@ -262,6 +303,104 @@ Verify the given UUID is valid or not.
       bValid = True
    
    return bValid
+
+def is_valid_config(dConfig, dSchema=CONFIG_SCHEMA, bExitOnFail=True):
+   """
+Validate the json configuration base on given schema.
+
+Default schema just supports ``component``, ``variant`` and ``version_sw``.
+   
+.. code:: python
+
+   CONFIG_SCHEMA = {
+      "component" : [str, dict],
+      "variant"   : str,
+      "version_sw": str,
+   }
+
+**Arguments:**
+
+*  ``dConfig``
+
+   / *Condition*: required / *Type*: dict /
+
+   Json configuration object to be verified.
+
+*  ``dSchema``
+
+   / *Condition*: optional / *Type*: dict / *Default*: CONFIG_SCHEMA /
+
+   Schema for the validation.
+
+*  ``bExitOnFail``
+
+   / *Condition*: optional / *Type*: bool / *Default*: True /
+
+   If True, exit tool in case the validation is fail.
+
+**Returns:**
+
+*  ``bValid``
+
+   / *Type*: bool /
+
+   True if the given json configuration data is valid.
+   """
+   bValid = True
+   for key in dConfig:
+      if key in dSchema.keys():
+         # List of support types
+         if isinstance(dSchema[key], list):
+            if type(dConfig[key]) not in dSchema[key]:
+               bValid = False
+         # Fixed type
+         else:
+            if type(dConfig[key]) != dSchema[key]:
+               bValid = False
+
+         if not bValid:
+            Logger.log_error(f"Value of '{key}' has wrong type '{type(dConfig[key])}' in configuration json  file.", 
+                             fatal_error=bExitOnFail)
+
+      else:
+         bValid = False
+         Logger.log_error(f"Information '{key}' is not supported in configuration json file.", 
+                          fatal_error=bExitOnFail)
+   
+   return bValid
+
+def validate_db_str_field(field, value):
+   """
+Validate the string value for database field bases on its acceptable length.\
+The error will be thrown and tool terminates if the verification is failed.
+
+**Arguments:**
+
+*  ``field``
+
+   / *Condition*: required / *Type*: str /
+
+   Field name in the database.
+
+*  ``value``
+
+   / *Condition*: required / *Type*: str /
+
+   String value to be verified.
+
+**Returns:**
+
+   / *Type*: str /
+
+   String value if the verification is fine.
+   """
+   if field in DB_STR_FIELD_MAXLENGTH:
+      if len(value) > DB_STR_FIELD_MAXLENGTH[field]:
+         Logger.log_error(f"Provided value '{value}' for '{field}' is longer than acceptable {DB_STR_FIELD_MAXLENGTH[field]} chars.", fatal_error=True)
+      else:
+         return value
+   else:
+      Logger.log_error(f"Invalid field '{field}' to import into database", fatal_error=True)
 
 def get_from_tags(lTags, reInfo):
    """
@@ -329,7 +468,7 @@ Convention of branch information in suffix of software version:
    Branch name.
    """
    branch_name = "main"
-   version_number=re.findall("(\d+\.)(\d+)([S,F])\d+",sw_version.upper())
+   version_number=re.findall(r"(\d+\.)(\d+)([S,F])\d+",sw_version.upper())
    try:
       branch_name = "".join(version_number[0])
    except:
@@ -368,19 +507,19 @@ Process provided argument(s) from command line.
 
 Avalable arguments in command line:
 
-   - `-v` : tool version information.
+   - `-v`, `--version` : tool version information.
    - `resultxmlfile` : path to the xml result file or directory of result files to be imported.
    - `server` : server which hosts the database (IP or URL).
    - `user` : user for database login.
    - `password` : password for database login.
    - `database` : database name.
-   - `-recursive` : if True, then the path is searched recursively for log files to be imported.
-   - `-dryrun` : if True, then just check the RQM authentication and show what would be done.
-   - `-append` : if True, then allow to append new result(s) to existing execution result UUID which is provided by -UUID argument.
-   - `-UUID` : UUID used to identify the import and version ID on TestResultWebApp.
-   - `-variant` : variant name to be set for this import.
-   - `-versions` : metadata: Versions (Software;Hardware;Test) to be set for this import.
-   - `-config` : configuration json file for component mapping information.
+   - `--recursive` : if True, then the path is searched recursively for log files to be imported.
+   - `--dryrun` : if True, then verify all input arguments (includes DB connection) and show what would be done.
+   - `--append` : if True, then allow to append new result(s) to existing execution result UUID which is provided by -UUID argument.
+   - `--UUID` : UUID used to identify the import and version ID on TestResultWebApp.
+   - `--variant` : variant name to be set for this import.
+   - `--versions` : metadata: Versions (Software;Hardware;Test) to be set for this import.
+   - `--config` : configuration json file for component mapping information.
 
 **Arguments:**
 
@@ -392,36 +531,43 @@ Avalable arguments in command line:
 
    ArgumentParser object.
    """
-   cmdlineparser=argparse.ArgumentParser(prog="RobotLog2DB (RobotXMLResult to TestResultWebApp importer)", 
-                                         description="RobotLog2DB imports XML result files (default: output.xml) " + \
-                                                     "generated by the Robot Framework into a WebApp database."
-                                        )
+   PROG_NAME = "RobotLog2DB (RobotXMLResult to TestResultWebApp importer)"
+   PROG_DESC = "RobotLog2DB imports XML result files (default: output.xml) "+\
+               "generated by the Robot Framework into a WebApp database."
 
-   cmdlineparser.add_argument('-v',action='version', version=f'v{VERSION} ({VERSION_DATE})',help='Version of the RobotLog2DB importer.')
-   cmdlineparser.add_argument('resultxmlfile', type=str, help='absolute or relative path to the result file or directory of result files to be imported.')
-   cmdlineparser.add_argument('server', type=str, help='server which hosts the database (IP or URL).')
-   cmdlineparser.add_argument('user', type=str, help='user for database login.')
-   cmdlineparser.add_argument('password', type=str, help='password for database login.')
-   cmdlineparser.add_argument('database', type=str, help='database schema for database login.')
-   cmdlineparser.add_argument('-recursive', action="store_true", help='if set, then the path is searched recursively for output files to be imported.')
-   cmdlineparser.add_argument('-dryrun', action="store_true", help='if set, then just show what would be done.')
-   cmdlineparser.add_argument('-append', action="store_true", help='is used in combination with -UUID <UUID>.' +\
-                              ' If set, allow to append new result(s) to existing execution result UUID in -UUID argument.')
-   cmdlineparser.add_argument('-UUID', type=str, help='UUID used to identify the import and version ID on webapp.' + \
-                              ' If not provided RobotLog2DB will generate an UUID for the whole import.')
-   cmdlineparser.add_argument('--variant', type=str, help='variant name to be set for this import.')
-   cmdlineparser.add_argument('--versions', type=str, help='metadata: Versions (Software;Hardware;Test) to be set for this import (semicolon separated).')
-   cmdlineparser.add_argument('--config', type=str, help='configuration json file for component mapping information.')
+   cmdParser = argparse.ArgumentParser(prog=PROG_NAME, description=PROG_DESC)
 
-   # Below arguments are not implemented currently
-   # cmdlineparser.add_argument('-tags', type=str, help='tags to be set for this import (semicolon separated).')
-   # cmdlineparser.add_argument('-tags_append', action="store_true", help='if set, then tags from -tags will be appended to tags already provided in log file.')
-   # cmdlineparser.add_argument('-category', type=str, help='category to be set for this import. Must be allowed by data base. Overrides category provided in log file.')
-   # cmdlineparser.add_argument('-qualitygate', type=str, help='qualitygate to be set for this import. Overrides qualitygate provided in log file.')
-   # cmdlineparser.add_argument('-onetest',action="store_true", help='if set, tool will import only the latest test result in log file to db.')
-   # cmdlineparser.add_argument('-endresult',action="store_true", help='if set, tool will proceed the end steps to finish import process.')
+   cmdParser.add_argument('-v', '--version', action='version', 
+                           version=f'v{VERSION} ({VERSION_DATE})',
+                           help='version of the RobotLog2DB importer.')
+   cmdParser.add_argument('resultxmlfile', type=str, 
+                           help='absolute or relative path to the result file or directory of result files to be imported.')
+   cmdParser.add_argument('server', type=str, 
+                           help='server which hosts the database (IP or URL).')
+   cmdParser.add_argument('user', type=str, 
+                           help='user for database login.')
+   cmdParser.add_argument('password', type=str, 
+                           help='password for database login.')
+   cmdParser.add_argument('database', type=str, 
+                           help='database schema for database login.')
+   cmdParser.add_argument('--recursive', action="store_true", 
+                           help='if set, then the path is searched recursively for output files to be imported.')
+   cmdParser.add_argument('--dryrun', action="store_true", 
+                           help='if set, then verify all input arguments (includes DB connection) and show what would be done.')
+   cmdParser.add_argument('--append', action="store_true", 
+                           help='is used in combination with --UUID <UUID>.'+\
+                                'If set, allow to append new result(s) to existing execution result UUID in --UUID argument.')
+   cmdParser.add_argument('--UUID', type=str, 
+                           help='UUID used to identify the import and version ID on webapp. '+\
+                                'If not provided RobotLog2DB will generate an UUID for the whole import.')
+   cmdParser.add_argument('--variant', type=str, 
+                           help='variant name to be set for this import.')
+   cmdParser.add_argument('--versions', type=str, 
+                           help='metadata: Versions (Software;Hardware;Test) to be set for this import (semicolon separated).')
+   cmdParser.add_argument('--config', type=str, 
+                           help='configuration json file for component mapping information.')
 
-   return cmdlineparser.parse_args()
+   return cmdParser.parse_args()
 
 def process_suite_metadata(suite, default_metadata=DEFAULT_METADATA):
    """
@@ -540,7 +686,8 @@ Process to the lowest suite level (test file):
    """
    if len(list(suite.suites)) > 0:
       for subsuite in suite.suites:
-         process_suite(db, subsuite, _tbl_test_result_id, root_metadata, dConfig)
+         process_suite(db, subsuite, _tbl_test_result_id, root_metadata, 
+                       dConfig)
    else:
       # File metadata
       metadata_info = process_metadata(suite.metadata, root_metadata)
@@ -562,7 +709,8 @@ Process to the lowest suite level (test file):
                   if isinstance(dConfig['component'][cmpt_name], list):
                      bFound = False
                      for path in dConfig['component'][cmpt_name]:
-                        if normalize_path(path) in normalize_path(_tbl_file_name):
+                        if (normalize_path(path) in 
+                            normalize_path(_tbl_file_name)):
                            metadata_info['component'] = cmpt_name
                            bFound = True
                            break
@@ -573,7 +721,8 @@ Process to the lowest suite level (test file):
                      if cmpt_path in normalize_path(_tbl_file_name):
                         metadata_info['component'] = cmpt_name
                         break
-            elif isinstance(dConfig['component'], str) and dConfig['component'].strip() != "":
+            elif (isinstance(dConfig['component'], str) and 
+                  dConfig['component'].strip() != ""):
                metadata_info['component'] = dConfig['component']
       
       # New test file
@@ -586,38 +735,39 @@ Process to the lowest suite level (test file):
                                           _tbl_test_result_id)
       else:
          _tbl_file_id = "file id for dryrun"
-      Logger.log("Created test file result for file '%s' successfully: %s"%(_tbl_file_name, str(_tbl_file_id)), indent=2)
+      Logger.log(f"Created test file result for file '{_tbl_file_name}' successfully: {str(_tbl_file_id)}", 
+                 indent=2)
       
-      _tbl_header_testtoolconfiguration_testtoolname      = ""
-      _tbl_header_testtoolconfiguration_testtoolversion   = ""
-      _tbl_header_testtoolconfiguration_pythonversion     = ""
+      _tbl_header_testtoolname    = ""
+      _tbl_header_testtoolversion = ""
+      _tbl_header_pythonversion   = ""
       if metadata_info['testtool'] != "":
-         sFindstring = "([a-zA-Z\s\_]+[^\s])\s+([\d\.rcab]+)\s+\(Python\s+(.*)\)"
+         sFindstring=r"([a-zA-Z\s\_]+[^\s])\s+([\d\.rcab]+)\s+\(Python\s+(.*)\)"
          oTesttool = re.search(sFindstring, metadata_info['testtool'])
          if oTesttool:
-            _tbl_header_testtoolconfiguration_testtoolname    = truncate_string(oTesttool.group(1), 45)
-            _tbl_header_testtoolconfiguration_testtoolversion = truncate_string(oTesttool.group(2), 255)
-            _tbl_header_testtoolconfiguration_pythonversion   = truncate_string(oTesttool.group(3), 255)
+            _tbl_header_testtoolname   = truncate_string(oTesttool.group(1), 45)
+            _tbl_header_testtoolversion= truncate_string(oTesttool.group(2),255)
+            _tbl_header_pythonversion  = truncate_string(oTesttool.group(3),255)
 
-      _tbl_header_testtoolconfiguration_projectname     = truncate_string(metadata_info['project'], 255)
-      _tbl_header_testtoolconfiguration_logfileencoding = truncate_string("UTF-8", 45)
-      _tbl_header_testtoolconfiguration_testfile        = truncate_string(_tbl_file_name, 255)
-      _tbl_header_testtoolconfiguration_logfilepath     = truncate_string("", 255)
-      _tbl_header_testtoolconfiguration_logfilemode     = truncate_string("", 45)
-      _tbl_header_testtoolconfiguration_ctrlfilepath    = truncate_string("", 255)
-      _tbl_header_testtoolconfiguration_configfile      = truncate_string(metadata_info['configfile'], 255)
-      _tbl_header_testtoolconfiguration_confname        = truncate_string("", 255)
+      _tbl_header_projectname = truncate_string(metadata_info['project'], 255)
+      _tbl_header_logfileencoding = truncate_string("UTF-8", 45)
+      _tbl_header_testfile    = truncate_string(_tbl_file_name, 255)
+      _tbl_header_logfilepath = truncate_string("", 255)
+      _tbl_header_logfilemode = truncate_string("", 45)
+      _tbl_header_ctrlfilepath= truncate_string("", 255)
+      _tbl_header_configfile  = truncate_string(metadata_info['configfile'],255)
+      _tbl_header_confname    = truncate_string("", 255)
    
-      _tbl_header_testfileheader_author           = truncate_string(metadata_info['author'], 255)
-      _tbl_header_testfileheader_project          = truncate_string(metadata_info['project'], 255)
-      _tbl_header_testfileheader_testfiledate     = truncate_string("", 255)
-      _tbl_header_testfileheader_version_major    = truncate_string("", 45)
-      _tbl_header_testfileheader_version_minor    = truncate_string("", 45)
-      _tbl_header_testfileheader_version_patch    = truncate_string("", 45)
-      _tbl_header_testfileheader_keyword          = truncate_string("", 255)
-      _tbl_header_testfileheader_shortdescription = truncate_string(suite.doc, 255)
-      _tbl_header_testexecution_useraccount       = truncate_string(metadata_info['tester'], 255)
-      _tbl_header_testexecution_computername      = truncate_string(metadata_info['machine'], 255)
+      _tbl_header_author        = truncate_string(metadata_info['author'], 255)
+      _tbl_header_project       = truncate_string(metadata_info['project'], 255)
+      _tbl_header_testfiledate  = truncate_string("", 255)
+      _tbl_header_version_major = truncate_string("", 45)
+      _tbl_header_version_minor = truncate_string("", 45)
+      _tbl_header_version_patch = truncate_string("", 45)
+      _tbl_header_keyword       = truncate_string("", 255)
+      _tbl_header_shortdescription = truncate_string(suite.doc, 255)
+      _tbl_header_useraccount   = truncate_string(metadata_info['tester'], 255)
+      _tbl_header_computername  = truncate_string(metadata_info['machine'], 255)
 
       _tbl_header_testrequirements_documentmanagement = truncate_string("", 255)
       _tbl_header_testrequirements_testenvironment    = truncate_string("", 255)
@@ -629,42 +779,43 @@ Process to the lowest suite level (test file):
 
       if not Logger.dryrun:
          db.vCreateNewHeader(_tbl_file_id,
-                           _tbl_header_testtoolconfiguration_testtoolname,
-                           _tbl_header_testtoolconfiguration_testtoolversion,
-                           _tbl_header_testtoolconfiguration_projectname,
-                           _tbl_header_testtoolconfiguration_logfileencoding,
-                           _tbl_header_testtoolconfiguration_pythonversion,
-                           _tbl_header_testtoolconfiguration_testfile,
-                           _tbl_header_testtoolconfiguration_logfilepath,
-                           _tbl_header_testtoolconfiguration_logfilemode,
-                           _tbl_header_testtoolconfiguration_ctrlfilepath,
-                           _tbl_header_testtoolconfiguration_configfile,
-                           _tbl_header_testtoolconfiguration_confname,
+                             _tbl_header_testtoolname,
+                             _tbl_header_testtoolversion,
+                             _tbl_header_projectname,
+                             _tbl_header_logfileencoding,
+                             _tbl_header_pythonversion,
+                             _tbl_header_testfile,
+                             _tbl_header_logfilepath,
+                             _tbl_header_logfilemode,
+                             _tbl_header_ctrlfilepath,
+                             _tbl_header_configfile,
+                             _tbl_header_confname,
 
-                           _tbl_header_testfileheader_author,
-                           _tbl_header_testfileheader_project,
-                           _tbl_header_testfileheader_testfiledate,
-                           _tbl_header_testfileheader_version_major,
-                           _tbl_header_testfileheader_version_minor,
-                           _tbl_header_testfileheader_version_patch,
-                           _tbl_header_testfileheader_keyword,
-                           _tbl_header_testfileheader_shortdescription,
-                           _tbl_header_testexecution_useraccount,
-                           _tbl_header_testexecution_computername,
+                             _tbl_header_author,
+                             _tbl_header_project,
+                             _tbl_header_testfiledate,
+                             _tbl_header_version_major,
+                             _tbl_header_version_minor,
+                             _tbl_header_version_patch,
+                             _tbl_header_keyword,
+                             _tbl_header_shortdescription,
+                             _tbl_header_useraccount,
+                             _tbl_header_computername,
 
-                           _tbl_header_testrequirements_documentmanagement,
-                           _tbl_header_testrequirements_testenvironment,
+                             _tbl_header_testrequirements_documentmanagement,
+                             _tbl_header_testrequirements_testenvironment,
 
-                           _tbl_header_testbenchconfig_name,
-                           _tbl_header_testbenchconfig_data,
-                           _tbl_header_preprocessor_filter,
-                           _tbl_header_preprocessor_parameters 
-                           )
+                             _tbl_header_testbenchconfig_name,
+                             _tbl_header_testbenchconfig_data,
+                             _tbl_header_preprocessor_filter,
+                             _tbl_header_preprocessor_parameters 
+                             )
 
       if len(list(suite.tests)) > 0:
          test_number = 1
          for test in suite.tests:
-            process_test(db, test, _tbl_file_id, _tbl_test_result_id, metadata_info, test_number)
+            process_test(db, test, _tbl_file_id, _tbl_test_result_id, 
+                         metadata_info, test_number)
             test_number = test_number + 1
 
 def process_test(db, test, file_id, test_result_id, metadata_info, test_number):
@@ -719,13 +870,13 @@ Process test case data and create new test case record.
    _tbl_case_fid   = ";".join(get_from_tags(test.tags, "FID-(.+)"))
    _tbl_case_testnumber  = test_number
    _tbl_case_repeatcount = 1
-   _tbl_case_component   = metadata_info['component'] # Component name is limited to 45 chars, otherwise an error is raised
+   _tbl_case_component   = metadata_info['component']
    _tbl_case_time_start  = format_time(test.starttime)
    _tbl_case_time_end    = format_time(test.endtime)
    try:
       _tbl_case_result_main = DRESULT_MAPPING[test.status]
-   except Exception as reason:
-      Logger.log_error("Invalid Robotframework result state '%s' of test '%s'."%(test.status,_tbl_case_name))
+   except Exception:
+      Logger.log_error(f"Invalid Robotframework result state '{test.status}' of test '{_tbl_case_name}'.")
       return
    _tbl_case_result_state   = "complete" 
    _tbl_case_result_return  = 11
@@ -756,7 +907,8 @@ Process test case data and create new test case record.
                                              )
    else:
       tbl_case_id = "testcase id for dryrun"
-   Logger.log("Created test case result for test '%s' successfully: %s"%(_tbl_case_name,str(tbl_case_id)), indent=4)
+   Logger.log(f"Created test case result for test '{_tbl_case_name}' successfully: {str(tbl_case_id)}", 
+              indent=4)
 
 def process_config_file(config_file):
    """
@@ -800,75 +952,16 @@ Parse information from configuration file:
    """
 
    with open(config_file) as f:
-      dConfig = json.load(f)
+      try:
+         dConfig = json.load(f)
+      except Exception as reason:
+         Logger.log_error(f"Cannot parse the json file '{config_file}'. Reason: {reason}", 
+                          fatal_error=True)
 
-   bValid = validate_config(dConfig, bExitOnFail=False)
-   if not bValid:
-      Logger.log_error("Error in configuration file '%s'."%config_file, fatal_error=True)
+   if not is_valid_config(dConfig, bExitOnFail=False):
+      Logger.log_error(f"Error in configuration file '{config_file}'.", 
+                       fatal_error=True)
    return dConfig
-
-def validate_config(dConfig, dSchema=CONFIG_SCHEMA, bExitOnFail=True):
-   """
-Validate the json configuration base on given schema.
-
-Default schema just supports ``component``, ``variant`` and ``version_sw``.
-   
-.. code:: python
-
-   CONFIG_SCHEMA = {
-      "component" : [str, dict],
-      "variant"   : str,
-      "version_sw": str,
-   }
-
-**Arguments:**
-
-*  ``dConfig``
-
-   / *Condition*: required / *Type*: dict /
-
-   Json configuration object to be verified.
-
-*  ``dSchema``
-
-   / *Condition*: optional / *Type*: dict / *Default*: CONFIG_SCHEMA /
-
-   Schema for the validation.
-
-*  ``bExitOnFail``
-
-   / *Condition*: optional / *Type*: bool / *Default*: True /
-
-   If True, exit tool in case the validation is fail.
-
-**Returns:**
-
-*  ``bValid``
-
-   / *Type*: bool /
-
-   True if the given json configuration data is valid.
-   """
-   bValid = True
-   for key in dConfig:
-      if key in dSchema.keys():
-         # List of support types
-         if isinstance(dSchema[key], list):
-            if type(dConfig[key]) not in dSchema[key]:
-               bValid = False
-         # Fixed type
-         else:
-            if type(dConfig[key]) != dSchema[key]:
-               bValid = False
-
-         if not bValid:
-            Logger.log_error("Value of '%s' has wrong type '%s' in configuration json file."%(key,type(dSchema[key])), fatal_error=bExitOnFail)
-
-      else:
-         bValid = False
-         Logger.log_error("Invalid key '%s' in configuration json file."%key, fatal_error=bExitOnFail)
-   
-   return bValid
 
 def normalize_path(sPath):
    """
@@ -947,8 +1040,8 @@ Import robot results from ``output.xml`` to TestResultWebApp's database.
 Flow to import Robot results to database: 
 
 1. Process provided arguments from command line.
-2. Connect to database.
-3. Parse Robot results.
+2. Parse Robot results.
+3. Connect to database.
 4. Import results into database.
 5. Disconnect from database.
 
@@ -966,8 +1059,8 @@ Flow to import Robot results to database:
    * `password` : password for database login.
    * `database` : database name.
    * `recursive` : if True, then the path is searched recursively for log files to be imported.
-   * `dryrun` : if True, then just check the RQM authentication and show what would be done.
-   * `-append` : if True, then allow to append new result(s) to existing execution result UUID which is provided by -UUID argument.
+   * `dryrun` : if True, then verify all input arguments (includes DB connection) and show what would be done.
+   * `append` : if True, then allow to append new result(s) to existing execution result UUID which is provided by -UUID argument.
    * `UUID` : UUID used to identify the import and version ID on TestResultWebApp.
    * `variant` : variant name to be set for this import.
    * `versions` : metadata: Versions (Software;Hardware;Test) to be set for this import.
@@ -981,69 +1074,38 @@ Flow to import Robot results to database:
    args = __process_commandline()
    Logger.config(dryrun=args.dryrun)
 
-   # Validate provided UUID
-   if args.UUID!=None:
-      if is_valid_uuid(args.UUID):
-         pass
-      else:
-         Logger.log_error("the uuid provided is not valid: '%s'" % str(args.UUID), fatal_error=True)
-
-   # Validate provided versions info (software;hardware;test)
-   arVersions = []
-   if args.versions!=None and args.versions.strip() != "":
-      arVersions=args.versions.split(";")
-      arVersions=[x.strip() for x in arVersions]
-      if len(arVersions)>3:
-         Logger.log_error("The provided versions information is not valid: '%s'" % str(args.versions), fatal_error=True)
-
-   # Validate provided configuration file (component, variant, version_sw)
-   dConfig = None
-   if args.config != None:
-      if os.path.isfile(args.config):
-         dConfig = process_config_file(args.config)
-      else:
-         Logger.log_error("The provided config information is not a file: '%s'" % str(args.config), fatal_error=True)
-
-   # 2. Connect to database
-   db=CDataBase()
-   try:
-      db.connect(args.server,
-                 args.user,
-                 args.password,
-                 args.database)
-   except Exception as reason:
-      Logger.log_error("could not connect to database: '%s'" % str(reason), fatal_error=True)
-
-   # 3. Parse results from Robotframework xml result file(s)
+   # 2. Parse results from Robotframework xml result file(s)
    sLogFileType="NONE"
    if os.path.exists(args.resultxmlfile):
       sLogFileType="PATH"
       if os.path.isfile(args.resultxmlfile):
          sLogFileType="FILE"  
    else:
-      Logger.log_error("logfile not existing: '%s'" % str(args.resultxmlfile), fatal_error=True)
+      Logger.log_error(f"Given resultxmlfile is not existing: '{args.resultxmlfile}'", 
+                       fatal_error=True)
 
    listEntries=[]
    if sLogFileType=="FILE":
       listEntries.append(args.resultxmlfile)
    else:
       if args.recursive:
-         Logger.log("Searching log files recursively...")
-         for root, dirs, files in os.walk(args.resultxmlfile):
+         Logger.log("Searching *.xml result files recursively...")
+         for root, _, files in os.walk(args.resultxmlfile):
             for file in files:
                if file.endswith(".xml"):
                   listEntries.append(os.path.join(root, file))
                   Logger.log(os.path.join(root, file), indent=2)
       else:
-         Logger.log("Searching log files...")
+         Logger.log("Searching *.xml result files...")
          for file in os.listdir(args.resultxmlfile):
             if file.endswith(".xml"):
                listEntries.append(os.path.join(args.resultxmlfile, file))
                Logger.log(os.path.join(args.resultxmlfile, file), indent=2)
 
-      # Terminate tool with error when no logfile under provided resultxmlfile folder
+      # Terminate tool with error when no logfile under provided folder
       if len(listEntries) == 0:
-         Logger.log_error("No logfile under '%s' folder." % str(args.resultxmlfile), fatal_error=True)
+         Logger.log_error(f"No *.xml result file under '{args.resultxmlfile}' folder.", 
+                          fatal_error=True)
 
    sources = tuple(listEntries)
    result = ExecutionResult(*sources)
@@ -1055,7 +1117,45 @@ Flow to import Robot results to database:
       metadata_info = process_suite_metadata(result.suite)
 
    else:
-      Logger.log_error("could not get suite data from xml result file", fatal_error=True)
+      Logger.log_error("Could not get suite data from xml result file", 
+                       fatal_error=True)
+
+   # Validate provided UUID
+   if args.UUID!=None:
+      if is_valid_uuid(args.UUID):
+         pass
+      else:
+         Logger.log_error(f"The uuid provided is not valid: '{str(args.UUID)}'", 
+                          fatal_error=True)
+
+   # Validate provided versions info (software;hardware;test)
+   arVersions = []
+   if args.versions!=None and args.versions.strip() != "":
+      arVersions=args.versions.split(";")
+      arVersions=[x.strip() for x in arVersions]
+      if len(arVersions)>3:
+         Logger.log_error(f"The provided versions information is not valid: '{str(args.versions)}'", 
+                          fatal_error=True)
+
+   # Validate provided configuration file (component, variant, version_sw)
+   dConfig = None
+   if args.config != None:
+      if os.path.isfile(args.config):
+         dConfig = process_config_file(args.config)
+      else:
+         Logger.log_error(f"The provided config file is not existing: '{args.config}'" , 
+                          fatal_error=True)
+
+   # 3. Connect to database
+   db=CDataBase()
+   try:
+      db.connect(args.server,
+                 args.user,
+                 args.password,
+                 args.database)
+   except Exception as reason:
+      Logger.log_error(f"Could not connect to database: '{reason}'", 
+                       fatal_error=True)
 
    # 4. Import results into database
    #    Create new execution result in database
@@ -1065,12 +1165,13 @@ Flow to import Robot results to database:
    #        '---Create new test result(s) 
    try:
       # Process variant info
-      # Project/Variant name is limited to 20 chars, otherwise an error is raised
-      _tbl_prj_project = _tbl_prj_variant = metadata_info['project']
       if args.variant!=None and args.variant.strip() != "":
          _tbl_prj_project = _tbl_prj_variant = args.variant.strip()
       elif dConfig != None and 'variant' in dConfig:
          _tbl_prj_project = _tbl_prj_variant = dConfig['variant']
+      else:
+         _tbl_prj_project = _tbl_prj_variant = validate_db_str_field("project", 
+                                                      metadata_info['project'])
 
       # Process versions info
       # Versions info is limited to 100 chars, otherwise an error is raised
@@ -1090,7 +1191,8 @@ Flow to import Robot results to database:
       # Set version as start time of the execution if not provided in metadata
       # Format: %Y%m%d_%H%M%S
       if _tbl_result_version_sw_target=="":
-         _tbl_result_version_sw_target = re.sub(r'(\d{8})\s(\d{2}):(\d{2}):(\d{2})\.\d+', r'\1_\2\3\4', result.suite.starttime)
+         _tbl_result_version_sw_target = re.sub(r'(\d{8})\s(\d{2}):(\d{2}):(\d{2})\.\d+', 
+                                                r'\1_\2\3\4', result.suite.starttime)
 
       # Process branch info from software version
       _tbl_prj_branch = get_branch_from_swversion(_tbl_result_version_sw_target)
@@ -1101,7 +1203,7 @@ Flow to import Robot results to database:
       else:
          _tbl_test_result_id = str(uuid.uuid4())
          if args.append:
-            Logger.log_warning("'-append' argument should be used in combination with '-UUID <UUID>` argument.")
+            Logger.log_warning("'--append' argument should be used in combination with '--UUID <UUID>' argument.")
       
       # Process start/end time info
       if len(sources) > 1:
@@ -1130,14 +1232,14 @@ Flow to import Robot results to database:
                                  _tbl_result_version_hardware,
                                  _tbl_result_jenkinsurl,
                                  _tbl_result_reporting_qualitygate)
-      Logger.log("Created test execution result for version '%s' successfully: %s"%(_tbl_result_version_sw_target,str(_tbl_test_result_id)))
+      Logger.log(f"Created test execution result for version '{_tbl_result_version_sw_target}' successfully: {str(_tbl_test_result_id)}")
    except Exception as reason:
       # MySQL error code:
       # Error Code   | SQLSTATE	|Error	      |Description                     
       # -------------+-----------+--------------+-------------------------------
       # 1062	      | 23000	   |ER_DUP_ENTRY	|Duplicate entry '%s' for key %d
       if reason.args[0] == 1062:
-         # check -append argument
+         # check --append argument
          if args.append:
             Logger.log(f"Append to existing test execution result UUID '{_tbl_test_result_id}'.")
          else:
@@ -1147,9 +1249,10 @@ Flow to import Robot results to database:
                \n{error_indent}Or add '-append' argument in your command to append new result(s) to this existing UUID.", 
                fatal_error=True)
       else:
-         Logger.log_error("Could not create new execution result. Reason: %s"%reason, fatal_error=True)
+         Logger.log_error(f"Could not create new execution result. Reason: {reason}", 
+                          fatal_error=True)
 
-   suite_info = process_suite(db, result.suite, _tbl_test_result_id, metadata_info, dConfig)
+   process_suite(db, result.suite, _tbl_test_result_id, metadata_info, dConfig)
 
    if not Logger.dryrun:
       db.vUpdateEvtbls()
@@ -1159,7 +1262,7 @@ Flow to import Robot results to database:
 
    # 5. Disconnect from database
    db.disconnect()
-   Logger.log("Import all results successfully!")
+   Logger.log("All test results written to database successfully.")
 
 if __name__=="__main__":
    RobotLog2DB()
