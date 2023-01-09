@@ -359,12 +359,12 @@ Default schema just supports ``component``, ``variant`` and ``version_sw``.
                bValid = False
 
          if not bValid:
-            Logger.log_error(f"Value of '{key}' has wrong type '{type(dSchema[key])}' in configuration json  file.", 
+            Logger.log_error(f"Value of '{key}' has wrong type '{type(dConfig[key])}' in configuration json  file.", 
                              fatal_error=bExitOnFail)
 
       else:
          bValid = False
-         Logger.log_error(f"Invalid key '{key}' in configuration json file.", 
+         Logger.log_error(f"Information '{key}' is not supported in configuration json file.", 
                           fatal_error=bExitOnFail)
    
    return bValid
