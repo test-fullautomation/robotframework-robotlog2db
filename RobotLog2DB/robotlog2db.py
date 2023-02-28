@@ -1207,7 +1207,7 @@ Flow to import Robot results to database:
       else:
          _tbl_test_result_id = str(uuid.uuid4())
          if args.append:
-            Logger.log_warning("'--append' argument should be used in combination with '--UUID <UUID>' argument.")
+            Logger.log_error("'--append' argument should be used in combination with '--UUID <UUID>` argument.", fatal_error=True)
       
       # Process start/end time info
       if len(sources) > 1:
@@ -1222,39 +1222,40 @@ Flow to import Robot results to database:
       _tbl_result_jenkinsurl     = ""
       _tbl_result_reporting_qualitygate = ""
 
-      # Process new test result
-      if not Logger.dryrun:
-         db.sCreateNewTestResult(_tbl_prj_project,
-                                 _tbl_prj_variant,
-                                 _tbl_prj_branch,
-                                 _tbl_test_result_id,
-                                 _tbl_result_interpretation,
-                                 _tbl_result_time_start,
-                                 _tbl_result_time_end,
-                                 _tbl_result_version_sw_target,
-                                 _tbl_result_version_sw_test,
-                                 _tbl_result_version_hardware,
-                                 _tbl_result_jenkinsurl,
-                                 _tbl_result_reporting_qualitygate)
-      Logger.log(f"Created test execution result for version '{_tbl_result_version_sw_target}' successfully: {str(_tbl_test_result_id)}")
-   except Exception as reason:
-      # MySQL error code:
-      # Error Code   | SQLSTATE	|Error	      |Description                     
-      # -------------+-----------+--------------+-------------------------------
-      # 1062	      | 23000	   |ER_DUP_ENTRY	|Duplicate entry '%s' for key %d
-      if reason.args[0] == 1062:
-         # check --append argument
+      # Check the UUID is existing or not
+      error_indent = len(Logger.prefix_fatalerror)*' '
+      if db.bExistingResultID(_tbl_test_result_id):
          if args.append:
             Logger.log(f"Append to existing test execution result UUID '{_tbl_test_result_id}'.")
          else:
-            error_indent = len(Logger.prefix_fatalerror)*' '
             Logger.log_error(f"Execution result with UUID '{_tbl_test_result_id}' is already existing. \
-               \n{error_indent}Please use other UUID (or remove '-UUID' argument from your command) for new execution result. \
-               \n{error_indent}Or add '-append' argument in your command to append new result(s) to this existing UUID.", 
+               \n{error_indent}Please use other UUID (or remove '--UUID' argument from your command) for new execution result. \
+               \n{error_indent}Or add '--append' argument in your command to append new result(s) to this existing UUID.", 
                fatal_error=True)
       else:
-         Logger.log_error(f"Could not create new execution result. Reason: {reason}", 
-                          fatal_error=True)
+         if args.append:
+            Logger.log_error(f"Execution result with UUID '{_tbl_test_result_id}' is not existing for appending.\
+               \n{error_indent}Please use an existing UUID to append new result(s) to that UUID. \
+               \n{error_indent}Or remove '--append' argument in your command to create new execution result with given UUID.", 
+               fatal_error=True)
+         else:
+            # Process new test result
+            if not Logger.dryrun:
+               db.sCreateNewTestResult(_tbl_prj_project,
+                                       _tbl_prj_variant,
+                                       _tbl_prj_branch,
+                                       _tbl_test_result_id,
+                                       _tbl_result_interpretation,
+                                       _tbl_result_time_start,
+                                       _tbl_result_time_end,
+                                       _tbl_result_version_sw_target,
+                                       _tbl_result_version_sw_test,
+                                       _tbl_result_version_hardware,
+                                       _tbl_result_jenkinsurl,
+                                       _tbl_result_reporting_qualitygate)
+            Logger.log(f"Created test execution result for variant '{_tbl_prj_variant}' - version '{_tbl_result_version_sw_target}' successfully: {str(_tbl_test_result_id)}")
+   except Exception as reason:
+      Logger.log_error(f"Could not create new execution result. Reason: {reason}", fatal_error=True)
 
    process_suite(db, result.suite, _tbl_test_result_id, metadata_info, dConfig)
 
