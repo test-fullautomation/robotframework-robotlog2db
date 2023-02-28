@@ -36,6 +36,9 @@
 #                the import.
 #  - Try to extract metadata from suites incase many suite levels in result.
 #
+# 2023-02-28:
+#  - Rename key to 'components' in configuration json file (--config).
+#
 # ******************************************************************************
 
 import re
@@ -70,12 +73,12 @@ DEFAULT_METADATA = {
    "machine"      :  "",
    "author"       :  "",
 
-   "component"    :  "",
+   "components"   :  "",
    "tags"         :  "",
 }
 
 CONFIG_SCHEMA = {
-   "component" : [str, dict],
+   "components": [str, dict],
    "variant"   : str,
    "version_sw": str,
 }
@@ -308,12 +311,12 @@ def is_valid_config(dConfig, dSchema=CONFIG_SCHEMA, bExitOnFail=True):
    """
 Validate the json configuration base on given schema.
 
-Default schema just supports ``component``, ``variant`` and ``version_sw``.
+Default schema just supports ``components``, ``variant`` and ``version_sw``.
    
 .. code:: python
 
    CONFIG_SCHEMA = {
-      "component" : [str, dict],
+      "components": [str, dict],
       "variant"   : str,
       "version_sw": str,
    }
@@ -359,13 +362,15 @@ Default schema just supports ``component``, ``variant`` and ``version_sw``.
                bValid = False
 
          if not bValid:
-            Logger.log_error(f"Value of '{key}' has wrong type '{type(dConfig[key])}' in configuration json  file.", 
+            Logger.log_error(f"Value of '{key}' has wrong type '{type(dConfig[key])}' in configuration json file.", 
                              fatal_error=bExitOnFail)
+            break
 
       else:
          bValid = False
          Logger.log_error(f"Information '{key}' is not supported in configuration json file.", 
                           fatal_error=bExitOnFail)
+         break
    
    return bValid
 
@@ -515,7 +520,7 @@ Avalable arguments in command line:
    - `database` : database name.
    - `--recursive` : if True, then the path is searched recursively for log files to be imported.
    - `--dryrun` : if True, then verify all input arguments (includes DB connection) and show what would be done.
-   - `--append` : if True, then allow to append new result(s) to existing execution result UUID which is provided by -UUID argument.
+   - `--append` : if True, then allow to append new result(s) to existing execution result UUID which is provided by --UUID argument.
    - `--UUID` : UUID used to identify the import and version ID on TestResultWebApp.
    - `--variant` : variant name to be set for this import.
    - `--versions` : metadata: Versions (Software;Hardware;Test) to be set for this import.
@@ -698,32 +703,32 @@ Process to the lowest suite level (test file):
       _tbl_file_time_end       = format_time(suite.endtime)
 
       # Process component information if not provided in metadata
-      if metadata_info['component'] == '':
+      if metadata_info['components'] == '':
          # assign default component name as 'unknown'
-         metadata_info['component'] = 'unknown'
+         metadata_info['components'] = 'unknown'
 
          # process component mapping if provided in config file
-         if dConfig != None and 'component' in dConfig:
-            if isinstance(dConfig['component'], dict):
-               for cmpt_name in dConfig['component']:
-                  if isinstance(dConfig['component'][cmpt_name], list):
+         if dConfig != None and 'components' in dConfig:
+            if isinstance(dConfig['components'], dict):
+               for cmpt_name in dConfig['components']:
+                  if isinstance(dConfig['components'][cmpt_name], list):
                      bFound = False
-                     for path in dConfig['component'][cmpt_name]:
+                     for path in dConfig['components'][cmpt_name]:
                         if (normalize_path(path) in 
                             normalize_path(_tbl_file_name)):
-                           metadata_info['component'] = cmpt_name
+                           metadata_info['components'] = cmpt_name
                            bFound = True
                            break
                      if bFound:
                         break
-                  elif isinstance(dConfig['component'][cmpt_name], str):
-                     cmpt_path = normalize_path(dConfig['component'][cmpt_name])
+                  elif isinstance(dConfig['components'][cmpt_name], str):
+                     cmpt_path = normalize_path(dConfig['components'][cmpt_name])
                      if cmpt_path in normalize_path(_tbl_file_name):
-                        metadata_info['component'] = cmpt_name
+                        metadata_info['components'] = cmpt_name
                         break
-            elif (isinstance(dConfig['component'], str) and 
-                  dConfig['component'].strip() != ""):
-               metadata_info['component'] = dConfig['component']
+            elif (isinstance(dConfig['components'], str) and 
+                  dConfig['components'].strip() != ""):
+               metadata_info['components'] = dConfig['components']
       
       # New test file
       if not Logger.dryrun:
@@ -919,7 +924,7 @@ Parse information from configuration file:
    .. code:: python
 
       {
-         "component" : {
+         "components" : {
             "componentA" : "componentA/path/to/testcase",
             "componentB" : "componentB/path/to/testcase",
             "componentC" : [
@@ -1060,7 +1065,7 @@ Flow to import Robot results to database:
    * `database` : database name.
    * `recursive` : if True, then the path is searched recursively for log files to be imported.
    * `dryrun` : if True, then verify all input arguments (includes DB connection) and show what would be done.
-   * `append` : if True, then allow to append new result(s) to existing execution result UUID which is provided by -UUID argument.
+   * `append` : if True, then allow to append new result(s) to existing execution result UUID which is provided by --UUID argument.
    * `UUID` : UUID used to identify the import and version ID on TestResultWebApp.
    * `variant` : variant name to be set for this import.
    * `versions` : metadata: Versions (Software;Hardware;Test) to be set for this import.
@@ -1125,8 +1130,7 @@ Flow to import Robot results to database:
       if is_valid_uuid(args.UUID):
          pass
       else:
-         Logger.log_error(f"The uuid provided is not valid: '{str(args.UUID)}'", 
-                          fatal_error=True)
+         Logger.log_error(f"The uuid provided is not valid: '{args.UUID}'", fatal_error=True)
 
    # Validate provided versions info (software;hardware;test)
    arVersions = []
