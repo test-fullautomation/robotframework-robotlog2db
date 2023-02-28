@@ -912,8 +912,9 @@ Process test case data and create new test case record.
                                              )
    else:
       tbl_case_id = "testcase id for dryrun"
-   Logger.log(f"Created test case result for test '{_tbl_case_name}' successfully: {str(tbl_case_id)}", 
-              indent=4)
+   component_msg = f" (component: {_tbl_case_component})" if _tbl_case_component != "unknown" else ""
+   Logger.log(f"Created test case result for test '{_tbl_case_name}' successfully: {str(tbl_case_id)}{component_msg}", indent=4)
+
 
 def process_config_file(config_file):
    """
@@ -1267,7 +1268,8 @@ Flow to import Robot results to database:
 
    # 5. Disconnect from database
    db.disconnect()
-   Logger.log("All test results written to database successfully.")
+   append_msg = " (append mode)" if args.append else ""
+   Logger.log(f"All test results are written to database successfully{append_msg}.")
 
 if __name__=="__main__":
    RobotLog2DB()
