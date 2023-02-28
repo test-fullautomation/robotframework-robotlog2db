@@ -73,7 +73,7 @@ DEFAULT_METADATA = {
    "machine"      :  "",
    "author"       :  "",
 
-   "components"   :  "",
+   "component"   :  "",
    "tags"         :  "",
 }
 
@@ -81,6 +81,10 @@ CONFIG_SCHEMA = {
    "components": [str, dict],
    "variant"   : str,
    "version_sw": str,
+   "version_hw": str,
+   "version_test": str,
+   "testtool"  :  str,
+   "tester"    :  str
 }
 
 DB_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -319,6 +323,10 @@ Default schema just supports ``components``, ``variant`` and ``version_sw``.
       "components": [str, dict],
       "variant"   : str,
       "version_sw": str,
+      "version_hw": str,
+      "version_test": str,
+      "testtool"  :  str,
+      "tester"    :  str
    }
 
 **Arguments:**
@@ -696,16 +704,18 @@ Process to the lowest suite level (test file):
    else:
       # File metadata
       metadata_info = process_metadata(suite.metadata, root_metadata)
-      _tbl_file_name = truncate_string(suite.source, 255)
+      _tbl_file_name = truncate_db_str_field(suite.source, 255)
       _tbl_file_tester_account = metadata_info['tester']
+      if dConfig != None and 'tester' in dConfig:
+         _tbl_file_tester_account = dConfig['tester']
       _tbl_file_tester_machine = metadata_info['machine']
       _tbl_file_time_start     = format_time(suite.starttime)
       _tbl_file_time_end       = format_time(suite.endtime)
 
       # Process component information if not provided in metadata
-      if metadata_info['components'] == '':
+      if metadata_info['component'] == '':
          # assign default component name as 'unknown'
-         metadata_info['components'] = 'unknown'
+         metadata_info['component'] = 'unknown'
 
          # process component mapping if provided in config file
          if dConfig != None and 'components' in dConfig:
@@ -716,7 +726,7 @@ Process to the lowest suite level (test file):
                      for path in dConfig['components'][cmpt_name]:
                         if (normalize_path(path) in 
                             normalize_path(_tbl_file_name)):
-                           metadata_info['components'] = cmpt_name
+                           metadata_info['component'] = cmpt_name
                            bFound = True
                            break
                      if bFound:
@@ -724,11 +734,11 @@ Process to the lowest suite level (test file):
                   elif isinstance(dConfig['components'][cmpt_name], str):
                      cmpt_path = normalize_path(dConfig['components'][cmpt_name])
                      if cmpt_path in normalize_path(_tbl_file_name):
-                        metadata_info['components'] = cmpt_name
+                        metadata_info['component'] = cmpt_name
                         break
             elif (isinstance(dConfig['components'], str) and 
                   dConfig['components'].strip() != ""):
-               metadata_info['components'] = dConfig['components']
+               metadata_info['component'] = dConfig['components']
       
       # New test file
       if not Logger.dryrun:
@@ -746,40 +756,43 @@ Process to the lowest suite level (test file):
       _tbl_header_testtoolname    = ""
       _tbl_header_testtoolversion = ""
       _tbl_header_pythonversion   = ""
-      if metadata_info['testtool'] != "":
+      sTestTool = metadata_info['testtool']
+      if dConfig != None and 'testtool' in dConfig:
+         sTestTool = dConfig['testtool']
+      if sTestTool != "":
          sFindstring=r"([a-zA-Z\s\_]+[^\s])\s+([\d\.rcab]+)\s+\(Python\s+(.*)\)"
-         oTesttool = re.search(sFindstring, metadata_info['testtool'])
+         oTesttool = re.search(sFindstring, sTestTool)
          if oTesttool:
-            _tbl_header_testtoolname   = truncate_string(oTesttool.group(1), 45)
-            _tbl_header_testtoolversion= truncate_string(oTesttool.group(2),255)
-            _tbl_header_pythonversion  = truncate_string(oTesttool.group(3),255)
+            _tbl_header_testtoolname   = truncate_db_str_field(oTesttool.group(1), DB_STR_FIELD_MAXLENGTH["testtoolconfiguration_testtoolname"])
+            _tbl_header_testtoolversion= truncate_db_str_field(oTesttool.group(2), DB_STR_FIELD_MAXLENGTH["testtoolconfiguration_testtoolversionstring"])
+            _tbl_header_pythonversion  = truncate_db_str_field(oTesttool.group(3), DB_STR_FIELD_MAXLENGTH["testtoolconfiguration_pythonversion"])
 
-      _tbl_header_projectname = truncate_string(metadata_info['project'], 255)
-      _tbl_header_logfileencoding = truncate_string("UTF-8", 45)
-      _tbl_header_testfile    = truncate_string(_tbl_file_name, 255)
-      _tbl_header_logfilepath = truncate_string("", 255)
-      _tbl_header_logfilemode = truncate_string("", 45)
-      _tbl_header_ctrlfilepath= truncate_string("", 255)
-      _tbl_header_configfile  = truncate_string(metadata_info['configfile'],255)
-      _tbl_header_confname    = truncate_string("", 255)
+      _tbl_header_projectname = truncate_db_str_field(metadata_info['project'], DB_STR_FIELD_MAXLENGTH["project"])
+      _tbl_header_logfileencoding = "UTF-8"
+      _tbl_header_testfile    = truncate_db_str_field(_tbl_file_name, DB_STR_FIELD_MAXLENGTH["name"])
+      _tbl_header_logfilepath = ""
+      _tbl_header_logfilemode = ""
+      _tbl_header_ctrlfilepath= ""
+      _tbl_header_configfile  = truncate_db_str_field(metadata_info['configfile'], DB_STR_FIELD_MAXLENGTH["testtoolconfiguration_configfile"])
+      _tbl_header_confname    = ""
    
-      _tbl_header_author        = truncate_string(metadata_info['author'], 255)
-      _tbl_header_project       = truncate_string(metadata_info['project'], 255)
-      _tbl_header_testfiledate  = truncate_string("", 255)
-      _tbl_header_version_major = truncate_string("", 45)
-      _tbl_header_version_minor = truncate_string("", 45)
-      _tbl_header_version_patch = truncate_string("", 45)
-      _tbl_header_keyword       = truncate_string("", 255)
-      _tbl_header_shortdescription = truncate_string(suite.doc, 255)
-      _tbl_header_useraccount   = truncate_string(metadata_info['tester'], 255)
-      _tbl_header_computername  = truncate_string(metadata_info['machine'], 255)
+      _tbl_header_author        = truncate_db_str_field(metadata_info['author'], DB_STR_FIELD_MAXLENGTH["tester_account"])
+      _tbl_header_project       = truncate_db_str_field(metadata_info['project'], DB_STR_FIELD_MAXLENGTH["project"])
+      _tbl_header_testfiledate  = ""
+      _tbl_header_version_major = ""
+      _tbl_header_version_minor = ""
+      _tbl_header_version_patch = ""
+      _tbl_header_keyword       = ""
+      _tbl_header_shortdescription = truncate_db_str_field(suite.doc, DB_STR_FIELD_MAXLENGTH["testfileheader_shortdescription"])
+      _tbl_header_useraccount   = truncate_db_str_field(metadata_info['tester'], DB_STR_FIELD_MAXLENGTH["tester_account"])
+      _tbl_header_computername  = truncate_db_str_field(metadata_info['machine'], DB_STR_FIELD_MAXLENGTH["tester_machine"])
 
-      _tbl_header_testrequirements_documentmanagement = truncate_string("", 255)
-      _tbl_header_testrequirements_testenvironment    = truncate_string("", 255)
+      _tbl_header_testrequirements_documentmanagement = ""
+      _tbl_header_testrequirements_testenvironment    = ""
       
-      _tbl_header_testbenchconfig_name    = truncate_string("", 255)
+      _tbl_header_testbenchconfig_name    = ""
       _tbl_header_testbenchconfig_data    = ""
-      _tbl_header_preprocessor_filter     = truncate_string("", 45)
+      _tbl_header_preprocessor_filter     = ""
       _tbl_header_preprocessor_parameters = ""
 
       if not Logger.dryrun:
@@ -869,7 +882,7 @@ Process test case data and create new test case record.
 
 (*no returns*)
    """
-   _tbl_case_name  = truncate_string(test.name, 255)
+   _tbl_case_name  = truncate_db_str_field(test.name, 255)
    _tbl_case_issue = ";".join(get_from_tags(test.tags, "ISSUE-(.+)"))
    _tbl_case_tcid  = ";".join(get_from_tags(test.tags, "TCID-(.+)"))
    _tbl_case_fid   = ";".join(get_from_tags(test.tags, "FID-(.+)"))
@@ -998,7 +1011,7 @@ Normalize path file.
    
    return sNPath
 
-def truncate_string(sString, iMaxLength, sEndChars='...'):
+def truncate_db_str_field(sString, iMaxLength, sEndChars='...'):
    """
 Truncate input string before importing to database.
 
@@ -1169,29 +1182,38 @@ Flow to import Robot results to database:
    #        |
    #        '---Create new test result(s) 
    try:
-      # Process variant info
+      # Process project/variant info
+      sVariant = metadata_info['project']
       if args.variant!=None and args.variant.strip() != "":
-         _tbl_prj_project = _tbl_prj_variant = args.variant.strip()
+         sVariant = args.variant.strip()
       elif dConfig != None and 'variant' in dConfig:
-         _tbl_prj_project = _tbl_prj_variant = dConfig['variant']
-      else:
-         _tbl_prj_project = _tbl_prj_variant = validate_db_str_field("project", 
-                                                      metadata_info['project'])
+         sVariant = dConfig['variant']
+      # Project/Variant name is limited to 20 chars, otherwise an error is raised
+      _tbl_prj_project = _tbl_prj_variant = validate_db_str_field("variant", sVariant)
 
       # Process versions info
       # Versions info is limited to 100 chars, otherwise an error is raised
-      _tbl_result_version_sw_target = metadata_info['version_sw']
-      _tbl_result_version_hardware  = metadata_info['version_hw']
-      _tbl_result_version_sw_test   = metadata_info['version_test']
+      sVersionSW = metadata_info['version_sw']
+      sVersionHW  = metadata_info['version_hw']
+      sVersionTest   = metadata_info['version_test']
       if len(arVersions) > 0:
          if len(arVersions)==1 or len(arVersions)==2 or len(arVersions)==3:
-            _tbl_result_version_sw_target = arVersions[0] 
+            sVersionSW = arVersions[0] 
          if len(arVersions)==2 or len(arVersions)==3:
-            _tbl_result_version_hardware = arVersions[1]
+            sVersionHW = arVersions[1]
          if len(arVersions)==3:
-            _tbl_result_version_sw_test = arVersions[2]
-      elif dConfig != None and 'version_sw' in dConfig:
-         _tbl_result_version_sw_target = dConfig['version_sw']
+            sVersionTest = arVersions[2]
+      elif dConfig != None:
+         if 'version_sw' in dConfig:
+            sVersionSW = dConfig['version_sw']
+         if 'version_hw' in dConfig:
+            sVersionHW = dConfig['version_hw']
+         if 'version_test' in dConfig:
+            sVersionTest = dConfig['version_test']
+      # Versions info is limited to 100 chars, otherwise an error is raised
+      _tbl_result_version_sw_target = validate_db_str_field("version_sw_target", sVersionSW)
+      _tbl_result_version_hardware  = truncate_db_str_field(sVersionHW, DB_STR_FIELD_MAXLENGTH["version_hardware"])
+      _tbl_result_version_sw_test   = truncate_db_str_field(sVersionTest, DB_STR_FIELD_MAXLENGTH["version_sw_test"])
 
       # Set version as start time of the execution if not provided in metadata
       # Format: %Y%m%d_%H%M%S
