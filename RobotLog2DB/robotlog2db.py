@@ -50,6 +50,7 @@ import sys
 import colorama as col
 import json
 
+from lxml import etree
 from robot.api import ExecutionResult
 from RobotLog2DB.CDataBase import CDataBase
 from RobotLog2DB.version import VERSION, VERSION_DATE
@@ -273,6 +274,53 @@ Write error message to console/file output.
       if fatal_error:
          cls.log(f"{sys.argv[0]} has been stopped!", cls.color_error)
          exit(1)
+
+def collect_xml_result_files(path, search_recursive=False):
+   lFoundFiles = []
+   if os.path.exists(path):
+      if os.path.isfile(path):
+         validate_xml_result(path)
+         lFoundFiles.append(path)
+      else:
+         if search_recursive:
+            Logger.log("Searching *.xml result files recursively...")
+            for root, _, files in os.walk(path):
+               for file in files:
+                  if file.endswith(".xml"):
+                     xml_result_pathfile = os.path.join(root, file)
+                     Logger.log(xml_result_pathfile, indent=2)
+                     validate_xml_result(xml_result_pathfile)
+                     lFoundFiles.append(xml_result_pathfile)
+         else:
+            Logger.log("Searching *.xml result files...")
+            for file in os.listdir(path):
+               if file.endswith(".xml"):
+                  xml_result_pathfile = os.path.join(path, file)
+                  Logger.log(xml_result_pathfile, indent=2)
+                  validate_xml_result(xml_result_pathfile)
+                  lFoundFiles.append(xml_result_pathfile)
+
+         # Terminate tool with error when no logfile under provided folder
+         if len(lFoundFiles) == 0:
+            Logger.log_error(f"No *.xml result file under '{path}' folder.", fatal_error=True)
+   else:
+      Logger.log_error(f"Given resultxmlfile is not existing: '{path}'", fatal_error=True)
+
+   return lFoundFiles
+
+def validate_xml_result(xml_result, xsd_schema=os.path.join(os.path.dirname(__file__),'xsd/robot.xsd'), exit_on_failure=True):
+   xmlschema_doc = etree.parse(xsd_schema)
+   xmlschema = etree.XMLSchema(xmlschema_doc)
+
+   xml_doc = etree.parse(xml_result)
+
+   if exit_on_failure:
+      try:
+         xmlschema.assert_(xml_doc)
+      except AssertionError as reason:
+         Logger.log_error(f"xml result file '{xml_result}' is not a valid Robot result.\nReason: {reason}", fatal_error=True)
+
+   return xmlschema.validate(xml_doc)
 
 def is_valid_uuid(uuid_to_test, version=4):
    """
@@ -1094,37 +1142,7 @@ Flow to import Robot results to database:
    Logger.config(dryrun=args.dryrun)
 
    # 2. Parse results from Robotframework xml result file(s)
-   sLogFileType="NONE"
-   if os.path.exists(args.resultxmlfile):
-      sLogFileType="PATH"
-      if os.path.isfile(args.resultxmlfile):
-         sLogFileType="FILE"  
-   else:
-      Logger.log_error(f"Given resultxmlfile is not existing: '{args.resultxmlfile}'", 
-                       fatal_error=True)
-
-   listEntries=[]
-   if sLogFileType=="FILE":
-      listEntries.append(args.resultxmlfile)
-   else:
-      if args.recursive:
-         Logger.log("Searching *.xml result files recursively...")
-         for root, _, files in os.walk(args.resultxmlfile):
-            for file in files:
-               if file.endswith(".xml"):
-                  listEntries.append(os.path.join(root, file))
-                  Logger.log(os.path.join(root, file), indent=2)
-      else:
-         Logger.log("Searching *.xml result files...")
-         for file in os.listdir(args.resultxmlfile):
-            if file.endswith(".xml"):
-               listEntries.append(os.path.join(args.resultxmlfile, file))
-               Logger.log(os.path.join(args.resultxmlfile, file), indent=2)
-
-      # Terminate tool with error when no logfile under provided folder
-      if len(listEntries) == 0:
-         Logger.log_error(f"No *.xml result file under '{args.resultxmlfile}' folder.", 
-                          fatal_error=True)
+   listEntries = collect_xml_result_files(args.resultxmlfile, args.recursive)
 
    sources = tuple(listEntries)
    result = ExecutionResult(*sources)
@@ -1278,7 +1296,7 @@ Flow to import Robot results to database:
                                        _tbl_result_reporting_qualitygate)
             Logger.log(f"Created test execution result for variant '{_tbl_prj_variant}' - version '{_tbl_result_version_sw_target}' successfully: {str(_tbl_test_result_id)}")
    except Exception as reason:
-      Logger.log_error(f"Could not create new execution result. Reason: {reason}", fatal_error=True)
+      Logger.log_error(f"Could not create new execution result in database. Reason: {reason}", fatal_error=True)
 
    process_suite(db, result.suite, _tbl_test_result_id, metadata_info, dConfig)
 
