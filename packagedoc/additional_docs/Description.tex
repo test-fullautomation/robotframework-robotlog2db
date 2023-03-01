@@ -372,49 +372,57 @@ overwrite them with your expected values for the importing result.
 \begin{itemize}
 \item \rlog{--variant VARIANT}
 
-  To specify the {Project/Variant} information.
+  To specify the \textbf{Project/Variant} information.
 
 \item \rlog{--versions VERSIONS}
 
-  To specify the {Software version} information.
+  To specify the \textbf{Software, Hardware} and \textbf{Test} versions information.
 
 \item \rlog{--config CONFIG}
 
   To provide a configuration \emph{*.json} file as \pcode{CONFIG} argument.
-  Currently, the configuration \emph{*.json} supports 3 types of settings:
+  Currently, the configuration \emph{*.json} supports below settings:
 
   \begin{itemize}
-  \item \rcode{"version_sw"} to specify the \textbf{Software version} information as string 
-        value.
-  \item \rcode{"variant"} to specify the \textbf{Project/Variant} as string value.
+  \item \rcode{"variant"} to specify the \textbf{Project/Variant} as \pcode{string} value.
+  \item \rcode{"version_sw"} to specify the \textbf{Software version} information as \pcode{string} value.
+  \item \rcode{"version_hw"} to specify the \textbf{Hardware under-test version} as \pcode{string} value.
+  \item \rcode{"version_test"} to specify the \textbf{Test version} as \pcode{string} value.
   \begin{boxhint} {Notice}
     These above settings with \rlog{--config CONFIG} will have lower priority than the 
     commandline arguments \rlog{--variant VARIANT} and \rlog{--versions VERSIONS}
   \end{boxhint}
-
-  \item \rcode{"component"} to specify the \textbf{Component} information which will be 
+  \item \rcode{"testtool"} to specify the \textbf{Test toolchain} as \pcode{string} value.
+  \item \rcode{"tester"} to specify the \textbf{Test user} as \pcode{string} value.
+  \item \rcode{"components"} to specify the \textbf{Component} information which will be 
         displayed on \href{https://github.com/test-fullautomation/testresultwebapp}
         {TestResultWebApp}. Value can be:
         \begin{itemize}
-          \item A string to apply a single \textbf{Component} or all test cases 
-                within the execution result. E.g:
+          \item 
+            \pcode{string}: to specify the same \emph{component} for all testcase
+            within this execution.
 \begin{robotcode}
 {
-  "component" : "atest",
+  "components" : "atest",
   ...
 }
 \end{robotcode}
-          \item A json object to define the mapping between testcase folders and 
-                \textbf{Components}. E.g:
+          \item
+            \pcode{object}: to specify the mapping between \emph{component} info
+            and \emph{classname} of testcase.
 \begin{robotcode}
   {
-    "component" : {
+    "components" : {
       "cli"       : "robot/cli",
       "core"      : "robot/core",
       "external"  : "robot/external",
       "keywords"  : "robot/keywords",
       "libdoc"    : "robot/libdoc",
-      ...
+      "connectivity" : [
+          "selftest/serial",
+          "selftest/ssh",
+          "selftest/tcpip"
+      ]
     },
     ...
   }
@@ -423,68 +431,92 @@ overwrite them with your expected values for the importing result.
         The error will be occurred when the provided configuration
         \emph{*.json} schema is not correct.
   \end{itemize}
-        
+\end{itemize}
 
-  Sample configuration json file:
+Sample configuration json file:
 
 \begin{pythoncode}
 {
-   "component"  : {
+   "components" : {
                   "cli"       : "robot/cli",
                   "core"      : "robot/core",
                   "external"  : "robot/external",
                   "keywords"  : "robot/keywords",
                   "libdoc"    : "robot/libdoc",
-                  "output"    : "robot/output",
-                  "parsing"   : "robot/parsing",
-                  "reboot"    : "robot/reboot",
-                  "rpa"       : "robot/rpa",
-                  "running"   : "robot/running",
-                  "std_lib"   : "robot/standard_libraries",
-                  "tags"      : "robot/tags",
-                  "test_lib"  : "robot/test_libraries",
-                  "testdoc"   : "robot/testdoc",
-                  "tidy"      : "robot/tidy",
-                  "variables" : "robot/variables"
+                  "connectivity" : [
+                      "selftest/serial",
+                      "selftest/ssh",
+                      "selftest/tcpip"
+                  ]
    },
    "version_sw" : "Atest",
    "variant"    : "ROBFW"
 }
 \end{pythoncode}
+
+As above sample configuration, the component mapping can be explained as below:
+
+\begin{itemize}
+  \item Testcase(s) which path file contains \textbf{robot/cli} is belong to component \textbf{cli}
+  \item Testcase(s) which path file contains \textbf{robot/core} is belong to component \textbf{core}
+  \item Testcase(s) which path file contains \textbf{robot/external} is belong to component \textbf{external}
+  \item Testcase(s) which path file contains \textbf{robot/keywords} is belong to component \textbf{keywords}
+  \item Testcase(s) which path file contains \textbf{robot/libdoc} is belong to component \textbf{libdoc}
+  \item And component \textbf{connectivity} contains all testcases which path file contains
+        \textbf{selftest/serial}, \textbf{selftest/ssh} or \textbf{selftest/tcpip}.
 \end{itemize}
 
-\subsection{Append to existing execution result}
-In case you want to append new test result(s) into an existing execution result (is 
-identified by the \textbf{UUID}) in TestResultWebApp's database, the combincation of 
-optional arguments \rlog{--UUID <UUID>} and \rlog{--append} will help to do it.
+\hypertarget{append-to-existing-execution-result}{%
+\subsection{Append to existing execution result}\label{append-to-existing-execution-result}}
+
+\pkg\ also allow you to append new test result(s) (missing from previous import, 
+on other test setup, ...) into the existing execution result (identified by the 
+\textbf{UUID}) in TestResultWebApp's database. 
+The combination of optional arguments \rlog{--UUID <UUID>} and \rlog{--append} 
+should be used in this case.
+
+The \rlog{--append} makes \pkg\ run in append mode and the \rlog{--UUID <UUID>} 
+will specify the existing UUID of execution result to be appended.
 
 For example, the result with UUID \textbf{c7991c07-4de2-4d65-8568-00c5556c82aa} 
-is already existing in TestResultWebApp's database and you want to append new 
-result(s) from \textbf{output.xml} into that execution result.
+is already existing in TestResultWebApp's database and you want to append
+result(s) in \textbf{output.xml} into that execution result.
 
 The command will be used as below:
+
 \begin{robotlog}
 python -m RobotLog2DB output.xml localhost testuser testpw testdb --UUID c7991c07-4de2-4d65-8568-00c5556c82aa --append
 \end{robotlog}
 
 If the argument \rlog{--UUID <UUID>} is used without \rlog{--append}:
+
 \begin{itemize}
-  \item An error will be thrown and the import job is terminated immediately 
-        if the provided \textbf{UUID} is already existing.
+  \item An error will be thrown and the import job is terminated immediately if 
+        the provided \textbf{UUID} is already existing
+
 \begin{robotlog}
 FATAL ERROR: Execution result with UUID 'c7991c07-4de2-4d65-8568-00c5556c82aa' is already existing.
              Please use other UUID (or remove '--UUID' argument from your command) for new execution result.
              Or add '--append' argument in your command to append new result(s) to this existing UUID.
 \end{robotlog}
-  \item The importing execution result will have an identifier as the provided 
-        \textbf{UUID} if that \textbf{UUID} is not existing.
+  \item The importing execution result will have an identifier as the provided
+        \textbf{UUID} if that \textbf{UUID} is not existing
 \end{itemize}
 
-If the argument \rlog{--append} is used without \rlog{--UUID <UUID>}, only a warning message 
-will be showed as below:
+If the argument \rlog{--append} is used and:
+\begin{itemize}
+  \item given UUID in \rlog{--UUID <UUID>} argument is existing: the new result(s) will be appended to that UUID
+  \item given UUID in \rlog{--UUID <UUID>} argument is not existing: tool will be terminated immediately with below error
 \begin{robotlog}
-WARN: '--append' argument should be used in combination with '--UUID <UUID>' argument.
+FATAL ERROR: Execution result with UUID 'c7991c07-4de2-4d65-8568-00c5556c82aa' is not existing for appending.
+             Please use an existing UUID to append new result(s) to that UUID.
+             Or remove '--append' argument in your command to create new execution result with given UUID.
 \end{robotlog}
+  \item \rlog{--UUID <UUID>} is not provided: tool will be terminated immediately with below error
+\begin{robotlog}
+FATAL ERROR: '--append' argument should be used in combination with '--UUID <UUID>` argument
+\end{robotlog}
+\end{itemize} 
 
 
 \newpage
