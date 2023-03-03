@@ -276,6 +276,31 @@ Write error message to console/file output.
          exit(1)
 
 def collect_xml_result_files(path, search_recursive=False):
+   """
+Collect all valid Robot xml result file in given path.
+
+**Arguments:**
+
+*  ``path``
+
+   / *Condition*: required / *Type*: str /
+   
+   Path to Robot result folder or file to be searched.
+
+*  ``search_recursive``
+
+   / *Condition*: optional / *Type*: bool / *Default*: False /
+   
+   If set, the given path is searched recursively for xml result files.
+
+**Returns:**
+
+*  ``lFoundFiles``
+
+   / *Type*: list /
+
+   List of valid xml result file(s) in given path.
+   """
    lFoundFiles = []
    if os.path.exists(path):
       if os.path.isfile(path):
@@ -309,16 +334,49 @@ def collect_xml_result_files(path, search_recursive=False):
    return lFoundFiles
 
 def validate_xml_result(xml_result, xsd_schema=os.path.join(os.path.dirname(__file__),'xsd/robot.xsd'), exit_on_failure=True):
-   xmlschema_doc = etree.parse(xsd_schema)
-   xmlschema = etree.XMLSchema(xmlschema_doc)
+   """
+Verify the given xml result file is valid or not.
 
-   xml_doc = etree.parse(xml_result)
+**Arguments:**
+
+*  ``xml_result``
+
+   / *Condition*: required / *Type*: str /
+   
+   Path to Robot result file.
+
+*  ``xsd_schema``
+
+   / *Condition*: optional / *Type*: str / *Default*: <installed_folder>\/xsd\/robot.xsd /
+   
+   Path to Robot schema *.xsd file.
+
+*  ``exit_on_failure``
+
+   / *Condition*: optional / *Type*: bool / *Default*: True /
+   
+   If set, exit with fatal error if the schema validation of given xml file failed.
+
+**Returns:**
+
+*  / *Type*: bool /
+
+   True if the given xml result is valid with the provided schema *.xsd.
+   """
+   try:
+      xmlschema_doc = etree.parse(xsd_schema)
+      xmlschema = etree.XMLSchema(xmlschema_doc)
+   except Exception as reason:
+      Logger.log_error(f"schema xsd file '{xsd_schema}' is not a valid.\nReason: {reason}", fatal_error=True)
 
    if exit_on_failure:
       try:
+         xml_doc = etree.parse(xml_result)
          xmlschema.assert_(xml_doc)
       except AssertionError as reason:
          Logger.log_error(f"xml result file '{xml_result}' is not a valid Robot result.\nReason: {reason}", fatal_error=True)
+      except Exception as reason:
+         Logger.log_error(f"result file '{xml_result}' is not a valid xml format.\nReason: {reason}", fatal_error=True)
 
    return xmlschema.validate(xml_doc)
 
