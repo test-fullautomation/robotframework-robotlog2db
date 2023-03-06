@@ -91,8 +91,8 @@ CONFIG_SCHEMA = {
 DB_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 DB_STR_FIELD_MAXLENGTH = {
-   "project" : 20,
-   "variant" : 20,
+   "project" : 100,
+   "variant" : 100,
    "branch"  : 20,
    "version_sw_target" : 100,
    "version_sw_test" : 100,
@@ -1264,7 +1264,7 @@ Flow to import Robot results to database:
          sVariant = args.variant.strip()
       elif dConfig != None and 'variant' in dConfig:
          sVariant = dConfig['variant']
-      # Project/Variant name is limited to 20 chars, otherwise an error is raised
+      # Project/Variant name is limited to 100 chars, otherwise an error is raised
       _tbl_prj_project = _tbl_prj_variant = validate_db_str_field("variant", sVariant)
 
       # Process versions info
