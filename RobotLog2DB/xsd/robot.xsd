@@ -265,6 +265,7 @@
                 <xs:attribute name="pass" type="xs:integer" />
                 <xs:attribute name="fail" type="xs:integer" />
                 <xs:attribute name="skip" type="xs:integer" />
+                <xs:attribute name="unknown" type="xs:integer" />
                 <xs:attribute name="doc" type="xs:string" />
                 <xs:attribute name="links" type="xs:string" />
                 <xs:attribute name="info" type="xs:string" />
