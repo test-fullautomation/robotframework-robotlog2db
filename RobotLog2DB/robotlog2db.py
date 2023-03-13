@@ -378,8 +378,8 @@ def is_valid_config(dConfig, dSchema=CONFIG_SCHEMA, bExitOnFail=True):
    """
 Validate the json configuration base on given schema.
 
-Default schema just supports ``components``, ``variant`` and ``version_sw``.
-   
+Default schema supports below information:
+
 .. code:: python
 
    CONFIG_SCHEMA = {
@@ -1143,18 +1143,19 @@ Flow to import Robot results to database:
    #        '---Create new test result(s) 
    try:
       bUseDefaultPrjVariant = True
-      bUseDefaultVersionSW  = False
+      bUseDefaultVersionSW  = True
+      sMsgVarirantSetBy = sMsgVersionSWSetBy = "default value"
 
       # Process project/variant info
       sVariant = metadata_info['project']
       if args.variant!=None and args.variant.strip() != "":
          bUseDefaultPrjVariant = False
+         sMsgVarirantSetBy = "from --variant commandline argument"
          sVariant = args.variant.strip()
       elif dConfig != None and 'variant' in dConfig:
          bUseDefaultPrjVariant = False
+         sMsgVarirantSetBy = f"from configuration '{args.config}' file provided by --config"  
          sVariant = dConfig['variant']
-      else:
-         Logger.log(f"Set project/variant to default value: '{sVariant}'")
       _tbl_prj_project = _tbl_prj_variant = sVariant
 
       # Process versions info
@@ -1162,6 +1163,8 @@ Flow to import Robot results to database:
       sVersionHW  = metadata_info['version_hw']
       sVersionTest   = metadata_info['version_test']
       if len(arVersions) > 0:
+         bUseDefaultVersionSW = False
+         sMsgVersionSWSetBy = "from --versions commandline argument"
          if len(arVersions)==1 or len(arVersions)==2 or len(arVersions)==3:
             sVersionSW = arVersions[0] 
          if len(arVersions)==2 or len(arVersions)==3:
@@ -1170,6 +1173,8 @@ Flow to import Robot results to database:
             sVersionTest = arVersions[2]
       elif dConfig != None:
          if 'version_sw' in dConfig:
+            bUseDefaultVersionSW = False
+            sMsgVersionSWSetBy = f"from configuration '{args.config}' file provided by --config"
             sVersionSW = dConfig['version_sw']
          if 'version_hw' in dConfig:
             sVersionHW = dConfig['version_hw']
@@ -1185,7 +1190,9 @@ Flow to import Robot results to database:
          bUseDefaultVersionSW = True
          _tbl_result_version_sw_target = re.sub(r'(\d{8})\s(\d{2}):(\d{2}):(\d{2})\.\d+', 
                                                 r'\1_\2\3\4', result.suite.starttime)
-         Logger.log(f"Set version_sw to default value: '{_tbl_result_version_sw_target}'")
+      if not args.append:
+         Logger.log(f"Set project/variant to '{sVariant}' ({sMsgVarirantSetBy})")
+         Logger.log(f"Set version_sw to '{_tbl_result_version_sw_target}' ({sMsgVersionSWSetBy})")
 
       # Process branch info from software version
       _tbl_prj_branch = get_branch_from_swversion(_tbl_result_version_sw_target)
@@ -1266,7 +1273,7 @@ Flow to import Robot results to database:
    # 5. Disconnect from database
    db.disconnect()
    append_msg = " (append mode)" if args.append else ""
-   Logger.log(f"All test results are written to database successfully{append_msg}.")
+   Logger.log(f"\nAll test results are written to database successfully{append_msg}.")
 
 if __name__=="__main__":
    RobotLog2DB()
