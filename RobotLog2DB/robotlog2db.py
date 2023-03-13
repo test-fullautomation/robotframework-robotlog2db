@@ -90,49 +90,6 @@ CONFIG_SCHEMA = {
 
 DB_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-DB_STR_FIELD_MAXLENGTH = {
-   "project" : 20,
-   "variant" : 20,
-   "branch"  : 20,
-   "version_sw_target" : 100,
-   "version_sw_test" : 100,
-   "version_hardware" : 100,
-   "jenkinsurl" : 255,
-   "reporting_qualitygate" : 45,
-   "name" : 255,
-   "tester_account" : 100,
-   "tester_machine" : 45,
-   "origin" : 45,
-   "testtoolconfiguration_testtoolname" : 45,
-   "testtoolconfiguration_testtoolversionstring" : 255,
-   "testtoolconfiguration_projectname" : 255,
-   "testtoolconfiguration_logfileencoding" : 45,
-   "testtoolconfiguration_pythonversion" : 255,
-   "testtoolconfiguration_testfile" : 255,
-   "testtoolconfiguration_logfilepath" : 255,
-   "testtoolconfiguration_logfilemode" : 45,
-   "testtoolconfiguration_ctrlfilepath" : 255,
-   "testtoolconfiguration_configfile" : 255,
-   "testtoolconfiguration_confname" : 255,
-   "testfileheader_author" : 255,
-   "testfileheader_project" : 255,
-   "testfileheader_testfiledate" : 255,
-   "testfileheader_version_major" : 45,
-   "testfileheader_version_minor" : 45,
-   "testfileheader_version_patch" : 45,
-   "testfileheader_keyword" : 255,
-   "testfileheader_shortdescription" : 255,
-   "testexecution_useraccount" : 255,
-   "testexecution_computername" : 255,
-   "testrequirements_documentmanagement" : 255,
-   "testrequirements_testenvironment" : 255,
-   "testbenchconfig_name" : 255,
-   "preprocessor_filter" : 45,
-   "issue" : 50,
-   "tcid" : 50,
-   "fid" : 255,
-   "component" : 45
-}
 
 class Logger():
    """
@@ -421,8 +378,8 @@ def is_valid_config(dConfig, dSchema=CONFIG_SCHEMA, bExitOnFail=True):
    """
 Validate the json configuration base on given schema.
 
-Default schema just supports ``components``, ``variant`` and ``version_sw``.
-   
+Default schema supports below information:
+
 .. code:: python
 
    CONFIG_SCHEMA = {
@@ -487,39 +444,6 @@ Default schema just supports ``components``, ``variant`` and ``version_sw``.
          break
    
    return bValid
-
-def validate_db_str_field(field, value):
-   """
-Validate the string value for database field bases on its acceptable length.\
-The error will be thrown and tool terminates if the verification is failed.
-
-**Arguments:**
-
-*  ``field``
-
-   / *Condition*: required / *Type*: str /
-
-   Field name in the database.
-
-*  ``value``
-
-   / *Condition*: required / *Type*: str /
-
-   String value to be verified.
-
-**Returns:**
-
-   / *Type*: str /
-
-   String value if the verification is fine.
-   """
-   if field in DB_STR_FIELD_MAXLENGTH:
-      if len(value) > DB_STR_FIELD_MAXLENGTH[field]:
-         Logger.log_error(f"Provided value '{value}' for '{field}' is longer than acceptable {DB_STR_FIELD_MAXLENGTH[field]} chars.", fatal_error=True)
-      else:
-         return value
-   else:
-      Logger.log_error(f"Invalid field '{field}' to import into database", fatal_error=True)
 
 def get_from_tags(lTags, reInfo):
    """
@@ -810,7 +734,7 @@ Process to the lowest suite level (test file):
    else:
       # File metadata
       metadata_info = process_metadata(suite.metadata, root_metadata)
-      _tbl_file_name = truncate_db_str_field(suite.source, 255)
+      _tbl_file_name = suite.source
       _tbl_file_tester_account = metadata_info['tester']
       if dConfig != None and 'tester' in dConfig:
          _tbl_file_tester_account = dConfig['tester']
@@ -869,29 +793,29 @@ Process to the lowest suite level (test file):
          sFindstring=r"([a-zA-Z\s\_]+[^\s])\s+([\d\.rcab]+)\s+\(Python\s+(.*)\)"
          oTesttool = re.search(sFindstring, sTestTool)
          if oTesttool:
-            _tbl_header_testtoolname   = truncate_db_str_field(oTesttool.group(1), DB_STR_FIELD_MAXLENGTH["testtoolconfiguration_testtoolname"])
-            _tbl_header_testtoolversion= truncate_db_str_field(oTesttool.group(2), DB_STR_FIELD_MAXLENGTH["testtoolconfiguration_testtoolversionstring"])
-            _tbl_header_pythonversion  = truncate_db_str_field(oTesttool.group(3), DB_STR_FIELD_MAXLENGTH["testtoolconfiguration_pythonversion"])
+            _tbl_header_testtoolname   = oTesttool.group(1)
+            _tbl_header_testtoolversion= oTesttool.group(2)
+            _tbl_header_pythonversion  = oTesttool.group(3)
 
-      _tbl_header_projectname = truncate_db_str_field(metadata_info['project'], DB_STR_FIELD_MAXLENGTH["project"])
+      _tbl_header_projectname = metadata_info['project']
       _tbl_header_logfileencoding = "UTF-8"
-      _tbl_header_testfile    = truncate_db_str_field(_tbl_file_name, DB_STR_FIELD_MAXLENGTH["name"])
+      _tbl_header_testfile    = _tbl_file_name
       _tbl_header_logfilepath = ""
       _tbl_header_logfilemode = ""
       _tbl_header_ctrlfilepath= ""
-      _tbl_header_configfile  = truncate_db_str_field(metadata_info['configfile'], DB_STR_FIELD_MAXLENGTH["testtoolconfiguration_configfile"])
+      _tbl_header_configfile  = metadata_info['configfile']
       _tbl_header_confname    = ""
    
-      _tbl_header_author        = truncate_db_str_field(metadata_info['author'], DB_STR_FIELD_MAXLENGTH["tester_account"])
-      _tbl_header_project       = truncate_db_str_field(metadata_info['project'], DB_STR_FIELD_MAXLENGTH["project"])
+      _tbl_header_author        = metadata_info['author']
+      _tbl_header_project       = metadata_info['project']
       _tbl_header_testfiledate  = ""
       _tbl_header_version_major = ""
       _tbl_header_version_minor = ""
       _tbl_header_version_patch = ""
       _tbl_header_keyword       = ""
-      _tbl_header_shortdescription = truncate_db_str_field(suite.doc, DB_STR_FIELD_MAXLENGTH["testfileheader_shortdescription"])
-      _tbl_header_useraccount   = truncate_db_str_field(metadata_info['tester'], DB_STR_FIELD_MAXLENGTH["tester_account"])
-      _tbl_header_computername  = truncate_db_str_field(metadata_info['machine'], DB_STR_FIELD_MAXLENGTH["tester_machine"])
+      _tbl_header_shortdescription = suite.doc
+      _tbl_header_useraccount   = metadata_info['tester']
+      _tbl_header_computername  = metadata_info['machine']
 
       _tbl_header_testrequirements_documentmanagement = ""
       _tbl_header_testrequirements_testenvironment    = ""
@@ -988,7 +912,7 @@ Process test case data and create new test case record.
 
 (*no returns*)
    """
-   _tbl_case_name  = truncate_db_str_field(test.name, 255)
+   _tbl_case_name  = test.name
    _tbl_case_issue = ";".join(get_from_tags(test.tags, "ISSUE-(.+)"))
    _tbl_case_tcid  = ";".join(get_from_tags(test.tags, "TCID-(.+)"))
    _tbl_case_fid   = ";".join(get_from_tags(test.tags, "FID-(.+)"))
@@ -1117,46 +1041,6 @@ Normalize path file.
    
    return sNPath
 
-def truncate_db_str_field(sString, iMaxLength, sEndChars='...'):
-   """
-Truncate input string before importing to database.
-
-**Arguments:**
-
-*  ``sString``
-
-   / *Condition*: required / *Type*: str /
-
-   Input string for truncation.
-
-*  ``iMaxLength``
-
-   / *Condition*: required / *Type*: int /
-
-   Max length of string to be allowed. 
-
-*  ``sEndChars``
-
-   / *Condition*: optional / *Type*: str / *Default*: '...' /
-
-   End characters which are added to end of truncated string.
-
-**Returns:**
-
-*  ``content``
-
-   / *Type*: str /
-
-   String after truncation.
-   """
-   content = str(sString)
-   if isinstance(iMaxLength, int):
-      if len(content) > iMaxLength:
-         content = content[:iMaxLength-len(sEndChars)] + sEndChars
-   else:
-      raise Exception("parameter iMaxLength should be an integer")
-   
-   return content
 
 def RobotLog2DB(args=None):
    """
@@ -1258,21 +1142,29 @@ Flow to import Robot results to database:
    #        |
    #        '---Create new test result(s) 
    try:
+      bUseDefaultPrjVariant = True
+      bUseDefaultVersionSW  = True
+      sMsgVarirantSetBy = sMsgVersionSWSetBy = "default value"
+
       # Process project/variant info
       sVariant = metadata_info['project']
       if args.variant!=None and args.variant.strip() != "":
+         bUseDefaultPrjVariant = False
+         sMsgVarirantSetBy = "from --variant commandline argument"
          sVariant = args.variant.strip()
       elif dConfig != None and 'variant' in dConfig:
+         bUseDefaultPrjVariant = False
+         sMsgVarirantSetBy = f"from configuration '{args.config}' file provided by --config"  
          sVariant = dConfig['variant']
-      # Project/Variant name is limited to 20 chars, otherwise an error is raised
-      _tbl_prj_project = _tbl_prj_variant = validate_db_str_field("variant", sVariant)
+      _tbl_prj_project = _tbl_prj_variant = sVariant
 
       # Process versions info
-      # Versions info is limited to 100 chars, otherwise an error is raised
       sVersionSW = metadata_info['version_sw']
       sVersionHW  = metadata_info['version_hw']
       sVersionTest   = metadata_info['version_test']
       if len(arVersions) > 0:
+         bUseDefaultVersionSW = False
+         sMsgVersionSWSetBy = "from --versions commandline argument"
          if len(arVersions)==1 or len(arVersions)==2 or len(arVersions)==3:
             sVersionSW = arVersions[0] 
          if len(arVersions)==2 or len(arVersions)==3:
@@ -1281,21 +1173,26 @@ Flow to import Robot results to database:
             sVersionTest = arVersions[2]
       elif dConfig != None:
          if 'version_sw' in dConfig:
+            bUseDefaultVersionSW = False
+            sMsgVersionSWSetBy = f"from configuration '{args.config}' file provided by --config"
             sVersionSW = dConfig['version_sw']
          if 'version_hw' in dConfig:
             sVersionHW = dConfig['version_hw']
          if 'version_test' in dConfig:
             sVersionTest = dConfig['version_test']
-      # Versions info is limited to 100 chars, otherwise an error is raised
-      _tbl_result_version_sw_target = validate_db_str_field("version_sw_target", sVersionSW)
-      _tbl_result_version_hardware  = truncate_db_str_field(sVersionHW, DB_STR_FIELD_MAXLENGTH["version_hardware"])
-      _tbl_result_version_sw_test   = truncate_db_str_field(sVersionTest, DB_STR_FIELD_MAXLENGTH["version_sw_test"])
+      _tbl_result_version_sw_target = sVersionSW
+      _tbl_result_version_hardware  = sVersionHW
+      _tbl_result_version_sw_test   = sVersionTest
 
       # Set version as start time of the execution if not provided in metadata
       # Format: %Y%m%d_%H%M%S
       if _tbl_result_version_sw_target=="":
+         bUseDefaultVersionSW = True
          _tbl_result_version_sw_target = re.sub(r'(\d{8})\s(\d{2}):(\d{2}):(\d{2})\.\d+', 
                                                 r'\1_\2\3\4', result.suite.starttime)
+      if not args.append:
+         Logger.log(f"Set project/variant to '{sVariant}' ({sMsgVarirantSetBy})")
+         Logger.log(f"Set version_sw to '{_tbl_result_version_sw_target}' ({sMsgVersionSWSetBy})")
 
       # Process branch info from software version
       _tbl_prj_branch = get_branch_from_swversion(_tbl_result_version_sw_target)
@@ -1323,9 +1220,18 @@ Flow to import Robot results to database:
 
       # Check the UUID is existing or not
       error_indent = len(Logger.prefix_fatalerror)*' '
-      if db.bExistingResultID(_tbl_test_result_id):
+      _db_result_info = db.arGetProjectVersionSWByID(_tbl_test_result_id)
+      if _db_result_info:
          if args.append:
-            Logger.log(f"Append to existing test execution result UUID '{_tbl_test_result_id}'.")
+            # Check given variant/project and version_sw (not default values) with existing values in db
+            _db_prj_variant = _db_result_info[0]
+            _db_version_sw  = _db_result_info[1]
+            if not bUseDefaultPrjVariant and _tbl_prj_variant != _db_prj_variant:
+               Logger.log_error(f"Given project/variant '{_tbl_prj_variant}' is different with existing value '{_db_prj_variant}' in database.", fatal_error=True)
+            elif not bUseDefaultVersionSW and _tbl_result_version_sw_target != _db_version_sw: 
+               Logger.log_error(f"Given version software '{_tbl_result_version_sw_target}' is different with existing value '{_db_version_sw}' in database.", fatal_error=True)
+            else:
+               Logger.log(f"Append to existing test execution result for variant '{_db_prj_variant}' - version '{_db_version_sw}' - UUID '{_tbl_test_result_id}'.")
          else:
             Logger.log_error(f"Execution result with UUID '{_tbl_test_result_id}' is already existing. \
                \n{error_indent}Please use other UUID (or remove '--UUID' argument from your command) for new execution result. \
@@ -1367,7 +1273,7 @@ Flow to import Robot results to database:
    # 5. Disconnect from database
    db.disconnect()
    append_msg = " (append mode)" if args.append else ""
-   Logger.log(f"All test results are written to database successfully{append_msg}.")
+   Logger.log(f"\nAll test results are written to database successfully{append_msg}.")
 
 if __name__=="__main__":
    RobotLog2DB()

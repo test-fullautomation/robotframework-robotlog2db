@@ -395,17 +395,17 @@ linked to all other data by means of ``test_result_id``.
       res = self.__arExec(sql,sqlval,True)[0][0]
       if res == 0:
          sql,sqlval = """insert into """ + self.db + """.tbl_prj 
-         (project, variant, branch) values (%s, %s, %s)""" , (_tbl_prj_project,
-                                                              _tbl_prj_variant,
+         ( variant,project, branch) values (%s, %s, %s)""" , (_tbl_prj_variant,
+                                                              _tbl_prj_project,
                                                               _tbl_prj_branch)
          self.__arExec(sql,sqlval) 
          
       sql,sqlval = """insert into """ + self.db + """.tbl_result (test_result_id, 
-         project,variant,branch, time_start,time_end, version_sw_target, 
+         variant,project,branch, time_start,time_end, version_sw_target, 
          version_sw_test,version_hardware,jenkinsurl,reporting_qualitygate,result_state) 
          values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""" , (_tbl_test_result_id,
-                                                            _tbl_prj_project,
                                                             _tbl_prj_variant,
+                                                            _tbl_prj_project,
                                                             _tbl_prj_branch,
                                                             _tbl_result_time_start,
                                                             _tbl_result_time_end,
@@ -1432,7 +1432,7 @@ Update test result end time.
 
 *  ``_tbl_test_result_id``
 
-   / *Condition*: required / *Type*: int /
+   / *Condition*: required / *Type*: str /
 
    Result UUID to be updated.
 
@@ -1457,7 +1457,7 @@ Verify the given test result UUID is existing in ``tbl_result`` table or not.
 
 *  ``_tbl_test_result_id``
 
-   / *Condition*: required / *Type*: int /
+   / *Condition*: required / *Type*: str /
 
    Result UUID to be verified.
 
@@ -1475,3 +1475,28 @@ Verify the given test result UUID is existing in ``tbl_result`` table or not.
       if res and len(res)>0:
          bExisting = True
       return bExisting
+
+   def arGetProjectVersionSWByID(self, _tbl_test_result_id):
+      """
+Get the project and version_sw information of given `test_result_id`
+
+**Arguments:**
+
+*  ``_tbl_test_result_id``
+
+   / *Condition*: required / *Type*: str /
+
+   Result UUID to be get the information.
+
+**Returns:**
+
+*  / *Type*: tuple /
+
+   None if test result UUID is not existing, else the tuple which contains project and version_sw: (project, variant) is returned.
+      """
+      sql = "SELECT project, version_sw_target FROM %s.tbl_result WHERE test_result_id='%s'"%(self.db, _tbl_test_result_id)
+      res = self.__arExec(sql, bHasResponse=True)
+      if res and len(res)>0:
+         return res[0]
+      
+      return None
