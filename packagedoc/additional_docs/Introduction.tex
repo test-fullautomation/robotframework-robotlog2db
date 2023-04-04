@@ -12,23 +12,28 @@
 % See the License for the specific language governing permissions and
 % limitations under the License.
 
-\href{https://github.com/test-fullautomation/robotframework-robotlog2db}{\pkg}
-tool helps to import  
+\pkg\ is a command-line tool that enables you to import \rfwcore\ XML result 
+files into TestResultWebApp's database for presenting an overview about the 
+whole test execution and detail of each test result.
+
+\begin{figure}[h!]
+   \includegraphics[width=1\linewidth]{./pictures/data_flow.png}
+   \caption{Tool data flow}
+\end{figure}
+
+\pkg\ tool requires serveral arguments, including the location of the
 \href{https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#output-file}
-{robot \emph{output.xml} result file}(s) to
-\href{https://github.com/test-fullautomation/testresultwebapp}{TestResultWebApp}'s
-database for presenting an overview about the execution and detail of
-each test result.
+{\rfwcore\ XML result file(s)} to parse all information of test execution result 
+and TestResultWebApp's database credential for importing that result.
 
-In order to display the \rfwcore\ results on
-\href{https://github.com/test-fullautomation/testresultwebapp}{TestResultWebApp}
-Dashboard properly, Robot testcase need to give some required
-information for management such as project/variant, software version,
-component, ...
+\href{https://github.com/test-fullautomation/testresultwebapp}{TestResultWebApp} 
+requires some mandatory information to manage and display the test result properly. 
+Therefore, they should be provided in \rfwcore\ test case before execution, then 
+they will be available in XML result file for importing.
 
-Therefore, \rcode{Metadata} and \rcode{[Tags]} are used to provide
-that information to \emph{output.xml} result which is used for importing
-data to WebApp.
+However, you can use optional arguments of \pkg\ tool to provide those data 
+if they are missing or you want to overwrite them with the expected values.
 
-However, you can also provide required information as arguments when executing
-\pkg\ tool.
+Finally, \pkg\ also allows you to append existing results in the database, which 
+is helpful when you need to update previous test results or add the missing 
+XML result file(s) from previous tool execution.
