@@ -18,5 +18,5 @@
 #
 # Version and date of RobotLog2DB
 #
-VERSION      = "1.3.5"
-VERSION_DATE = "21.03.2023"
+VERSION      = "1.3.6"
+VERSION_DATE = "05.04.2023"
