@@ -1000,7 +1000,7 @@ Parse information from configuration file:
    Configuration object.
    """
 
-   with open(config_file) as f:
+   with open(config_file, encoding='utf-8') as f:
       try:
          dConfig = json.load(f)
       except Exception as reason:
@@ -1130,7 +1130,8 @@ Flow to import Robot results to database:
       db.connect(args.server,
                  args.user,
                  args.password,
-                 args.database)
+                 args.database,
+                 "utf8mb4")
    except Exception as reason:
       Logger.log_error(f"Could not connect to database: '{reason}'", 
                        fatal_error=True)
