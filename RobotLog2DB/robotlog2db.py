@@ -88,8 +88,9 @@ CONFIG_SCHEMA = {
    "tester"    :  str
 }
 
-DB_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
-
+iTotalTestcase = 0
+iSuccessTestcase = 0
+dComponentCounter = {}
 
 class Logger():
    """
@@ -772,12 +773,16 @@ Process to the lowest suite level (test file):
       
       # New test file
       if not Logger.dryrun:
-         _tbl_file_id = db.nCreateNewFile(_tbl_file_name,
-                                          _tbl_file_tester_account,
-                                          _tbl_file_tester_machine,
-                                          _tbl_file_time_start,
-                                          _tbl_file_time_end,
-                                          _tbl_test_result_id)
+         try:
+            _tbl_file_id = db.nCreateNewFile(_tbl_file_name,
+                                             _tbl_file_tester_account,
+                                             _tbl_file_tester_machine,
+                                             _tbl_file_time_start,
+                                             _tbl_file_time_end,
+                                             _tbl_test_result_id)
+         except Exception as reason:
+            Logger.log_error(f"Cannot create new test file result for file '{_tbl_file_name}' in database.\nReason: {reason}",
+                             fatal_error=True)
       else:
          _tbl_file_id = "file id for dryrun"
       Logger.log(f"Created test file result for file '{_tbl_file_name}' successfully: {str(_tbl_file_id)}", 
@@ -826,39 +831,42 @@ Process to the lowest suite level (test file):
       _tbl_header_preprocessor_parameters = ""
 
       if not Logger.dryrun:
-         db.vCreateNewHeader(_tbl_file_id,
-                             _tbl_header_testtoolname,
-                             _tbl_header_testtoolversion,
-                             _tbl_header_projectname,
-                             _tbl_header_logfileencoding,
-                             _tbl_header_pythonversion,
-                             _tbl_header_testfile,
-                             _tbl_header_logfilepath,
-                             _tbl_header_logfilemode,
-                             _tbl_header_ctrlfilepath,
-                             _tbl_header_configfile,
-                             _tbl_header_confname,
+         try:
+            db.vCreateNewHeader(_tbl_file_id,
+                              _tbl_header_testtoolname,
+                              _tbl_header_testtoolversion,
+                              _tbl_header_projectname,
+                              _tbl_header_logfileencoding,
+                              _tbl_header_pythonversion,
+                              _tbl_header_testfile,
+                              _tbl_header_logfilepath,
+                              _tbl_header_logfilemode,
+                              _tbl_header_ctrlfilepath,
+                              _tbl_header_configfile,
+                              _tbl_header_confname,
 
-                             _tbl_header_author,
-                             _tbl_header_project,
-                             _tbl_header_testfiledate,
-                             _tbl_header_version_major,
-                             _tbl_header_version_minor,
-                             _tbl_header_version_patch,
-                             _tbl_header_keyword,
-                             _tbl_header_shortdescription,
-                             _tbl_header_useraccount,
-                             _tbl_header_computername,
+                              _tbl_header_author,
+                              _tbl_header_project,
+                              _tbl_header_testfiledate,
+                              _tbl_header_version_major,
+                              _tbl_header_version_minor,
+                              _tbl_header_version_patch,
+                              _tbl_header_keyword,
+                              _tbl_header_shortdescription,
+                              _tbl_header_useraccount,
+                              _tbl_header_computername,
 
-                             _tbl_header_testrequirements_documentmanagement,
-                             _tbl_header_testrequirements_testenvironment,
+                              _tbl_header_testrequirements_documentmanagement,
+                              _tbl_header_testrequirements_testenvironment,
 
-                             _tbl_header_testbenchconfig_name,
-                             _tbl_header_testbenchconfig_data,
-                             _tbl_header_preprocessor_filter,
-                             _tbl_header_preprocessor_parameters 
-                             )
-
+                              _tbl_header_testbenchconfig_name,
+                              _tbl_header_testbenchconfig_data,
+                              _tbl_header_preprocessor_filter,
+                              _tbl_header_preprocessor_parameters 
+                              )
+         except Exception as reason:
+            Logger.log_error(f"Cannot create new test file header result for file '{_tbl_file_name}' in database.\nReason: {reason}", 
+                             fatal_error=True)
       if len(list(suite.tests)) > 0:
          test_number = 1
          for test in suite.tests:
@@ -912,6 +920,10 @@ Process test case data and create new test case record.
 
 (*no returns*)
    """
+   global iTotalTestcase
+   global iSuccessTestcase
+   global dComponentCounter
+   iTotalTestcase += 1
    _tbl_case_name  = test.name
    _tbl_case_issue = ";".join(get_from_tags(test.tags, "ISSUE-(.+)"))
    _tbl_case_tcid  = ";".join(get_from_tags(test.tags, "TCID-(.+)"))
@@ -921,6 +933,8 @@ Process test case data and create new test case record.
    _tbl_case_component   = metadata_info['component']
    _tbl_case_time_start  = format_time(test.starttime)
    _tbl_case_time_end    = format_time(test.endtime)
+   if _tbl_case_component not in dComponentCounter:
+      dComponentCounter[_tbl_case_component] = 0
    try:
       _tbl_case_result_main = DRESULT_MAPPING[test.status]
    except Exception:
@@ -937,27 +951,32 @@ Process test case data and create new test case record.
    _tbl_file_id = file_id
    
    if not Logger.dryrun:
-      tbl_case_id = db.nCreateNewSingleTestCase(_tbl_case_name,
-                                                _tbl_case_issue,
-                                                _tbl_case_tcid,
-                                                _tbl_case_fid,
-                                                _tbl_case_testnumber,
-                                                _tbl_case_repeatcount,
-                                                _tbl_case_component,
-                                                _tbl_case_time_start,
-                                                _tbl_case_result_main,
-                                                _tbl_case_result_state,
-                                                _tbl_case_result_return,
-                                                _tbl_case_counter_resets,
-                                                _tbl_case_lastlog,
-                                                _tbl_test_result_id,
-                                                _tbl_file_id
-                                             )
+      try:
+         tbl_case_id = db.nCreateNewSingleTestCase(_tbl_case_name,
+                                                   _tbl_case_issue,
+                                                   _tbl_case_tcid,
+                                                   _tbl_case_fid,
+                                                   _tbl_case_testnumber,
+                                                   _tbl_case_repeatcount,
+                                                   _tbl_case_component,
+                                                   _tbl_case_time_start,
+                                                   _tbl_case_result_main,
+                                                   _tbl_case_result_state,
+                                                   _tbl_case_result_return,
+                                                   _tbl_case_counter_resets,
+                                                   _tbl_case_lastlog,
+                                                   _tbl_test_result_id,
+                                                   _tbl_file_id
+                                                )
+      except Exception as reason:
+         Logger.log_error(f"Cannot create new test case result for test '{_tbl_case_name}' in database.\nReason: {reason}")
+         return
    else:
       tbl_case_id = "testcase id for dryrun"
+   iSuccessTestcase += 1
+   dComponentCounter[_tbl_case_component] += 1
    component_msg = f" (component: {_tbl_case_component})" if _tbl_case_component != "unknown" else ""
    Logger.log(f"Created test case result for test '{_tbl_case_name}' successfully: {str(tbl_case_id)}{component_msg}", indent=4)
-
 
 def process_config_file(config_file):
    """
@@ -1228,9 +1247,9 @@ Flow to import Robot results to database:
             _db_prj_variant = _db_result_info[0]
             _db_version_sw  = _db_result_info[1]
             if not bUseDefaultPrjVariant and _tbl_prj_variant != _db_prj_variant:
-               Logger.log_error(f"Given project/variant '{_tbl_prj_variant}' is different with existing value '{_db_prj_variant}' in database.", fatal_error=True)
+               Logger.log_error(f"Given project/variant '{_tbl_prj_variant}' ({sMsgVarirantSetBy}) is different with existing value '{_db_prj_variant}' in database.", fatal_error=True)
             elif not bUseDefaultVersionSW and _tbl_result_version_sw_target != _db_version_sw: 
-               Logger.log_error(f"Given version software '{_tbl_result_version_sw_target}' is different with existing value '{_db_version_sw}' in database.", fatal_error=True)
+               Logger.log_error(f"Given version software '{_tbl_result_version_sw_target}' ({sMsgVersionSWSetBy}) is different with existing value '{_db_version_sw}' in database.", fatal_error=True)
             else:
                Logger.log(f"Append to existing test execution result for variant '{_db_prj_variant}' - version '{_db_version_sw}' - UUID '{_tbl_test_result_id}'.")
          else:
@@ -1273,8 +1292,19 @@ Flow to import Robot results to database:
 
    # 5. Disconnect from database
    db.disconnect()
-   append_msg = " (append mode)" if args.append else ""
-   Logger.log(f"\nAll test results are written to database successfully{append_msg}.")
+   import_mode_msg = "append" if args.append else "written"
+   testcnt_msg = f"All {iTotalTestcase}" 
+   extended_msg = "" 
+   if (iTotalTestcase>iSuccessTestcase):
+      testcnt_msg  = f"{iSuccessTestcase} of {iTotalTestcase}"
+      extended_msg = f" {iTotalTestcase-iSuccessTestcase} test cases are skipped because of errors."
+   Logger.log()
+   Logger.log(f"{testcnt_msg} test cases are {import_mode_msg} to database successfully.{extended_msg}")
+
+   # Components's statistics
+   iMaxlenCmptStr = len(max(dComponentCounter, key=len))
+   for component in dComponentCounter:
+      Logger.log(f"Component {component.ljust(iMaxlenCmptStr, ' ')} : {dComponentCounter[component]} test cases")
 
 if __name__=="__main__":
    RobotLog2DB()
