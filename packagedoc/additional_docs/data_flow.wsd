@@ -1,0 +1,36 @@
+@startuml
+
+' title RobotLog2DB Data Flow
+
+left to right direction
+skinparam linetype ortho
+' skinparam SequenceMessageAlign center
+
+
+package "RobotFramework" {
+    folder "Robot Test Suite" as testsuite {
+        file "Test Case 1" as tc1
+        file "Test Case 2" as tc2
+        file "Test Case 3" as tc3
+    }
+    file "Robot Result (<i>*output.xml</i>)" as result
+}
+
+package "RobotLog2DB" {
+    rectangle "- Parse Robot Results\n- Connect Database\n- Import Test Results" as importtool
+}
+
+package "TestResultWebapp" {
+    database "Database" as db
+    rectangle "Web Application"  as view
+}
+
+tc1 -[hidden]- result
+tc2 -[hidden]- result
+tc3 -[hidden]- result
+testsuite  --> result
+result     --> importtool
+importtool --> db
+db         --> view
+
+@enduml
