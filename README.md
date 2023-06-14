@@ -16,30 +16,84 @@
 
 ## Getting Started
 
-[RobotLog2DB](https://github.com/test-fullautomation/robotframework-robotlog2db)
-is the tool that helps to import Robot Framework results (**\*.xml**
-format) to
-[TestResultWebApp](https://github.com/test-fullautomation/TestResultWebApp)
-Dashboard.
+**RobotLog2DB** is a command-line tool that enables you to import [Robot
+Framework XML
+result](https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#output-file)
+files into
+[TestResultWebApp](https://github.com/test-fullautomation/TestResultWebApp)\'s
+database for presenting an overview about the whole test execution and
+detail of each test result.
 
-[RobotLog2DB](https://github.com/test-fullautomation/robotframework-robotlog2db)
-tool is operating system independent and only works with Python 3.
+**RobotLog2DB** tool is operating system independent and only works with
+Python 3.
 
 ### How to install
 
-RobotLog2DB is not available on [PyPI](https://pypi.org/) now.
+**RobotLog2DB** can be installed in two different ways.
 
-But you can install this package directly from Github repository as
-below:
+1.  Installation via PyPi (recommended for users)
 
-    pip install git+https://github.com/test-fullautomation/robotframework-robotlog2db.git
+    ``` 
+    pip install robotframework-robotlog2db
+    ```
 
-Or you can clone sourcecode to your local directory then install this
-package with below steps:
+    [RobotLog2DB in
+    PyPi](https://pypi.org/project/robotframework-robotlog2db/)
 
-    git clone https://github.com/test-fullautomation/robotframework-robotlog2db.git
-    cd robotframework-robotlog2db
-    python setup.py install
+2.  Installation via GitHub (recommended for developers)
+
+    -   Clone the **robotframework-robotlog2db** repository to your
+        machine.
+
+        ``` 
+        git clone https://github.com/test-fullautomation/robotframework-robotlog2db.git
+        ```
+
+        [RobotLog2DB in
+        GitHub](https://github.com/test-fullautomation/robotframework-robotlog2db)
+
+    -   Install dependencies
+
+        **RobotLog2DB** requires some additional Python libraries.
+        Before you install the cloned repository sources you have to
+        install the dependencies manually. The names of all related
+        packages you can find in the file `requirements.txt` in the
+        repository root folder. Use pip to install them:
+
+        ``` 
+        pip install -r ./requirements.txt
+        ```
+
+        Additionally install **LaTeX** (recommended: TeX Live). This is
+        used to render the documentation.
+
+    -   Configure dependencies
+
+        The installation of **RobotLog2DB** includes to generate the
+        documentation in PDF format. This is done by an application
+        called **GenPackageDoc**, that is part of the installation
+        dependencies (see `requirements.txt`).
+
+        **GenPackageDoc** uses **LaTeX** to generate the documentation
+        in PDF format. Therefore **GenPackageDoc** needs to know where
+        to find **LaTeX**. This is defined in the **GenPackageDoc**
+        configuration file
+
+        ``` 
+        packagedoc\packagedoc_config.json
+        ```
+
+        Before you start the installation you have to introduce the
+        following environment variable, that is used in
+        `packagedoc_config.json`:
+
+        -   `GENDOC_LATEXPATH` : path to `pdflatex` executable
+
+    -   Use the following command to install **RobotLog2DB**:
+
+        ``` 
+        python setup.py install
+        ```
 
 After succesful installation, the executable file **RobotLog2DB** will
 be available (under *Scripts* folder of Python on Windows and
@@ -50,9 +104,9 @@ you can run it directly as operation system\'s command.
 
 ## Usage
 
-[RobotLog2DB](https://github.com/test-fullautomation/robotframework-robotlog2db)
-requires the Robot Framework result file(s) which contains the output
-result in XML format (default name is `output.xml`) and
+**RobotLog2DB** requires the Robot Framework result file(s) which
+contains the output result in XML format (default name is `output.xml`)
+and
 [TestResultWebApp](https://github.com/test-fullautomation/TestResultWebApp)\'s
 database information for importing.
 
@@ -86,7 +140,7 @@ The usage should be showed as below:
     --config CONFIG      configuration json file for component mapping information.
 
 The below command is simple usage with all required arguments to import
-robot results into TestResultWebApp\'s database:
+Robot Framework results into TestResultWebApp\'s database:
 
     RobotLog2DB <resultxmlfile> <server> <user> <password> <database>
 
@@ -96,14 +150,14 @@ Besides the executable file, you can also run tool as a Python module
 
 ## Example
 
-In order the import the robot result(s) to TestResultWebApp\'s database,
-we need the Robot Framework result file (`output.xml`).
+In order the import the Robot Framework result(s) to TestResultWebApp\'s
+database, we need the Robot Framework result file (`output.xml`).
 
-So, firstly execute the robot testcase(s) to get the Robot Framework
-result file.
+So, firstly execute the Robot Framework testcase(s) to get the Robot
+Framework result file.
 
-Sample robot testcase which contains neccessary information for
-importing into TestResultWebApp\'s database:
+Sample Robot Framework testcase which contains neccessary information
+for importing into TestResultWebApp\'s database:
 
     *** Settings ***
     # Test execution level
@@ -113,7 +167,7 @@ importing into TestResultWebApp\'s database:
     Metadata   version_test   TEST_VERSION_0.1   # Test version
 
     # File/Suite level
-    Documentation             This is description for robot test file
+    Documentation             This is description for Robot Framework test file
     Metadata    author        Tran Duy Ngoan (RBVH/ECM1)
     Metadata    component     Import_Tools
     Metadata    testtool      Robot Framework 3.2rc2 (Python 3.9.0 on win32)
@@ -144,11 +198,12 @@ importing into TestResultWebApp\'s database:
 > -   tester
 > -   testtool
 >
-> So that you do not need to define them in your Robot testcase(s).
+> So that you do not need to define them in your Robot Framework
+> testcase(s).
 >
 > However, if these `Metadata` definitions are already missing in the
-> RobotFramework output result file, you can specific them when
-> executing the RobotLog2DB tool with the optional arguments:
+> Robot Framework output result file, you can specific them when
+> executing the **RobotLog2DB** tool with the optional arguments:
 >
 > -   `--variant VARIANT`: Project definitions
 > -   `--versions VERSIONS`: Versions (Software;Hardware;Test)
@@ -160,7 +215,7 @@ importing into TestResultWebApp\'s database:
 > Documentation](https://github.com/test-fullautomation/robotframework-robotlog2db/blob/develop/RobotLog2DB/RobotLog2DB.pdf)
 > for more detail about these optional arguments.
 
-After getting Robot Framwork result file (`output.xml`), use below
+After getting Robot Framework result file (`output.xml`), use below
 sample command to import that result into TestResultWebApp\'s database
 which is hosted at *localhost* as below sample command
 
@@ -171,32 +226,29 @@ how wonderful the execution result is displayed as below figures:
 
 Dashboard view:
 
-![Dashboard view](packagedoc/additional_docs/pictures/Dashboard.png)
+![Dashboard view](https://github.com/test-fullautomation/robotframework-robotlog2db/blob/develop/packagedoc/additional_docs/pictures/Dashboard.png?raw=true)
 
 Datatable view:
 
-![Datatable view](packagedoc/additional_docs/pictures/Datatable.png)
+![Datatable view](https://github.com/test-fullautomation/robotframework-robotlog2db/blob/develop/packagedoc/additional_docs/pictures/Datatable.png?raw=true)
 
 ## Contribution
 
 We are always searching support and you are cordially invited to help to
-improve
-[RobotLog2DB](https://github.com/test-fullautomation/robotframework-robotlog2db)
-tool.
+improve **RobotLog2DB** tool.
 
 ## Sourcecode Documentation
 
 To understand more detail about the tool\'s features, parameters and how
-Robot testcase information will be displayed on TestResultWebApp, please
-refer to [RobotLog2DB tool's
+Robot Framework testcase information will be displayed on
+TestResultWebApp, please refer to [RobotLog2DB tool's
 Documentation](https://github.com/test-fullautomation/robotframework-robotlog2db/blob/develop/RobotLog2DB/RobotLog2DB.pdf).
 
 ## Feedback
 
 Please feel free to give any feedback to us via
 
-Email to: [Robot Framework Support
-Group](mailto:RobotFrameworkSupportGroup@bcn.bosch.com)
+Email to: [Thomas Pollerspöck](mailto:Thomas.Pollerspoeck@de.bosch.com)
 
 Issue tracking: [RobotLog2DB
 Issues](https://github.com/test-fullautomation/robotframework-robotlog2db/issues)
