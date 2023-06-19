@@ -1,4 +1,4 @@
-#  Copyright 2020-2022 Robert Bosch Car Multimedia GmbH
+#  Copyright 2020-2023 Robert Bosch GmbH
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -20,31 +20,31 @@
 # This class provides methods to interact with TestResultWebApp's database.
 #
 # History:
-# 
+#
 # June 2016:
 #  - initial version
-# 
+#
 # February 2022:
 #  - update sourcecode document
-# 
+#
 # *******************************************************************************
 
 import MySQLdb as db
 
 class CDataBase(object):
    """
-CDataBase class play a role as mysqlclient and provide methods to interact  
+CDataBase class play a role as mysqlclient and provide methods to interact
 with TestResultWebApp's database.
    """
    __single = None
-   
+
    __NUM_BUFFERD_ELEMENTS_FOR_EXECUTEMANY=100
-   
+
    #make the CDataBase to singleton
    #! __new__ requires inheritance from "object" !
    def __new__(classtype, *args, **kwargs):
       """
-Create object method to make singleton class ``CDataBase``. 
+Create object method to make singleton class ``CDataBase``.
       """
       # Check to see if a __single exists already for this class
       # Compare class types instead of just looking for None so
@@ -57,13 +57,13 @@ Create object method to make singleton class ``CDataBase``.
       """
 Initializer of class ``CDataBase``.
       """
-      con      = None  
-      db       = None 
+      con      = None
+      db       = None
       self.lTestCases = []
-      
+
    def __del__(self):
       pass
-  
+
    def connect(self,host        = None,
                     user        = None,
                     passwd      = None,
@@ -109,7 +109,7 @@ Connect to the database with provided authentication and db info.
 
    / *Condition*: optional / *Type*: bool / *Default*: True /
 
-   If True, CHAR and VARCHAR and TEXT columns are returned as Unicode strings, 
+   If True, CHAR and VARCHAR and TEXT columns are returned as Unicode strings,
    using the configured character set.
 
 **Returns:**
@@ -119,19 +119,19 @@ Connect to the database with provided authentication and db info.
 
       if (host==None or user==None or passwd==None or database==None):
          raise Exception("host, user, passwd and database need to be provided!")
-   
+
       self.db = database
-      
-      # default encoding of python is latin-1, 
+
+      # default encoding of python is latin-1,
       # therefore we force mysql to convert to encode to utf8.
       self.con = db.connect(host,user,passwd,db=database,charset=charset,use_unicode=use_unicode)
       #for test purpose activate autocommit with (True)
       self.con.autocommit(False)
       print("Successfully connected to: %s@%s" % (self.db, host))
-  
+
    def disconnect(self):
       """
-Disconnect from TestResultWebApp's database. 
+Disconnect from TestResultWebApp's database.
 
 **Arguments:**
 
@@ -143,7 +143,7 @@ Disconnect from TestResultWebApp's database.
       """
       self.con.commit()
       self.con.close()
-       
+
    def cleanAllTables(self):
       """
 Delete all table data. Please be careful before calling this method.
@@ -158,11 +158,11 @@ Delete all table data. Please be careful before calling this method.
       """
       print(">> Deleting all table data!")
       sql="""delete from """ + self.db + """.evtbl_result_main where test_result_id!="" """
-      self.__arExec(sql) 
+      self.__arExec(sql)
       sql="""delete from """ + self.db + """.evtbl_failed_unknown_per_component where test_result_id!="" """
-      self.__arExec(sql) 
+      self.__arExec(sql)
       sql="""delete from """ + self.db + """.tbl_usr_case where test_case_id>0"""
-      self.__arExec(sql) 
+      self.__arExec(sql)
       sql="""delete from """ + self.db + """.tbl_usr_case_history where test_case_id>0"""
       self.__arExec(sql)
       sql="""delete from """ + self.db + """.tbl_usr_comments where test_case_id>0"""
@@ -173,11 +173,11 @@ Delete all table data. Please be careful before calling this method.
       self.__arExec(sql)
       sql="""delete from """ + self.db + """.tbl_usr_result_history where test_result_id!="" """
       self.__arExec(sql)
-      
+
       sql="""delete from """ + self.db + """.tbl_file_header where file_id>0"""
-      self.__arExec(sql)   
+      self.__arExec(sql)
       sql="""delete from """ + self.db + """.tbl_case where test_case_id>0"""
-      self.__arExec(sql) 
+      self.__arExec(sql)
       sql="""delete from """ + self.db + """.tbl_file where file_id>0"""
       self.__arExec(sql)
       sql="""delete from """ + self.db + """.tbl_result where test_result_id!="" """
@@ -185,7 +185,7 @@ Delete all table data. Please be careful before calling this method.
       sql="""delete from """ + self.db + """.tbl_prj where project<>"a" """
       self.__arExec(sql)
       self.con.commit()
-           
+
    def __arExec(self, command, values=None, bHasResponse=False, bReturnInsertedID=False):
       """
 Execute a query. By default don't try to fetch a result.
@@ -195,27 +195,27 @@ Execute a query. By default don't try to fetch a result.
 *  ``command``
 
    / *Condition*: required / *Type*: str /
-   
+
    Query need to be executed.
 
 *  ``values``
 
    / *Condition*: optional / *Type*: list / *Default*: None /
-   
+
    Sequence of parameters to be used with the query.
 
 *  ``bHasResponse``
 
    / *Condition*: optional / *Type*: bool / *Default*: False /
-   
+
    If True, respsonse is expected.
 
 *  ``bReturnInsertedID``
 
    / *Condition*: optional / *Type*: bool / *Default*: False /
-   
+
    If True, the lastrowid will be returned.
-      
+
 **Returns:**
 
 *  ``arRes``
@@ -232,7 +232,7 @@ Execute a query. By default don't try to fetch a result.
       elif bReturnInsertedID:
          arRes = c.lastrowid
       c.close()
-      return arRes     
+      return arRes
 
    def __vExecMany(self, command, values=None):
       """
@@ -249,17 +249,17 @@ Execute a query for bulk insert of many elements. No response expected.
 *  ``values``
 
    / *Condition*: optional / *Type*: list / *Default*: None /
-   
+
    Sequence of parameters to be used with the query.
-      
+
 **Returns:**
 
-(*no returns*)      
+(*no returns*)
       """
       c = self.con.cursor()
       c.executemany(command,values)
       c.close()
-      
+
    def __nGetLastInsertID(self, tbl):
       """
 Return the last_insert_id of a given table.
@@ -269,26 +269,26 @@ Return the last_insert_id of a given table.
 *  ``tbl``
 
    / *Condition*: required / *Type*: str /
-   
+
    Table name to get the last_insert_id.
-      
+
 **Returns:**
 
 *  ``res``
 
    / *Type*: str /
 
-   The last_insert_id.      
+   The last_insert_id.
       """
-      # "select last_insert_id from table" returns as result a one column table 
-      # where the number of rows is the length of the full table. 
+      # "select last_insert_id from table" returns as result a one column table
+      # where the number of rows is the length of the full table.
       # Each row has the same value of the last_insert_id.
-      # This causes dramatic performance problems. 
+      # This causes dramatic performance problems.
       # Anyhow we need only one element, therefore we limit here to 1
       sql = """select last_insert_id() from """ + self.db + "." + tbl + " limit 1"
       res = self.__arExec(sql,bHasResponse=True)[0][0]
       return res
-       
+
    def sCreateNewTestResult(self, _tbl_prj_project,
                                   _tbl_prj_variant,
                                   _tbl_prj_branch,
@@ -303,7 +303,7 @@ Return the last_insert_id of a given table.
                                   _tbl_result_reporting_qualitygate
                             ):
       """
-Creates a new test result in ``tbl_result``. This is the main table which is 
+Creates a new test result in ``tbl_result``. This is the main table which is
 linked to all other data by means of ``test_result_id``.
 
 **Arguments:**
@@ -379,7 +379,7 @@ linked to all other data by means of ``test_result_id``.
    / *Condition*: required / *Type*: str /
 
    Qualitygate information for reporting.
-      
+
 **Returns:**
 
 *  ``_tbl_test_result_id``
@@ -388,21 +388,21 @@ linked to all other data by means of ``test_result_id``.
 
    ``test_result_id`` of new test result.
       """
-      sql,sqlval = """select count(*) from """ + self.db + """.tbl_prj where 
+      sql,sqlval = """select count(*) from """ + self.db + """.tbl_prj where
                (project=%s and variant=%s and branch=%s)""", (_tbl_prj_project,
                                                               _tbl_prj_variant,
                                                               _tbl_prj_branch)
       res = self.__arExec(sql,sqlval,True)[0][0]
       if res == 0:
-         sql,sqlval = """insert into """ + self.db + """.tbl_prj 
+         sql,sqlval = """insert into """ + self.db + """.tbl_prj
          ( variant,project, branch) values (%s, %s, %s)""" , (_tbl_prj_variant,
                                                               _tbl_prj_project,
                                                               _tbl_prj_branch)
-         self.__arExec(sql,sqlval) 
-         
-      sql,sqlval = """insert into """ + self.db + """.tbl_result (test_result_id, 
-         variant,project,branch, time_start,time_end, version_sw_target, 
-         version_sw_test,version_hardware,jenkinsurl,reporting_qualitygate,result_state) 
+         self.__arExec(sql,sqlval)
+
+      sql,sqlval = """insert into """ + self.db + """.tbl_result (test_result_id,
+         variant,project,branch, time_start,time_end, version_sw_target,
+         version_sw_test,version_hardware,jenkinsurl,reporting_qualitygate,result_state)
          values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""" , (_tbl_test_result_id,
                                                             _tbl_prj_variant,
                                                             _tbl_prj_project,
@@ -415,14 +415,14 @@ linked to all other data by means of ``test_result_id``.
                                                             _tbl_result_jenkinsurl,
                                                             _tbl_result_reporting_qualitygate,
                                                             "in progress")
-      self.__arExec(sql,sqlval) 
-      
+      self.__arExec(sql,sqlval)
+
       if _tbl_result_interpretation!='':
-         sql,sqlval = """update """ + self.db + """.tbl_result set interpretation=%s 
+         sql,sqlval = """update """ + self.db + """.tbl_result set interpretation=%s
             where test_result_id='""" + _tbl_test_result_id + "'", (_tbl_result_interpretation,)
-         self.__arExec(sql,sqlval)  
-         
-      return _tbl_test_result_id                           
+         self.__arExec(sql,sqlval)
+
+      return _tbl_test_result_id
 
    def nCreateNewFile(self,_tbl_file_name,
                            _tbl_file_tester_account,
@@ -477,25 +477,25 @@ Create new file entry in ``tbl_file`` table.
    / *Condition*: required / *Type*: str /
 
    Origin (test framework) of test file. Deafult is "ROBFW"
-      
+
 **Returns:**
 
 *  ``iInsertedID``
-   
+
    / *Type*: int /
-   
+
    ID of new entry.
       """
       sql,sqlval ="""insert into """ + self.db + """.tbl_file (name,tester_account,
-                     tester_machine,time_start,time_end,test_result_id,origin) 
+                     tester_machine,time_start,time_end,test_result_id,origin)
                      values (%s,%s,%s,%s,%s,%s,%s)""" , ( _tbl_file_name,
                                                          _tbl_file_tester_account,
                                                          _tbl_file_tester_machine,
                                                          _tbl_file_time_start,
                                                          _tbl_file_time_end,
                                                          _tbl_test_result_id,
-                                                         _tbl_file_origin) 
-      iInsertedID = self.__arExec(sql,sqlval, bReturnInsertedID=True)                                                                                                      
+                                                         _tbl_file_origin)
+      iInsertedID = self.__arExec(sql,sqlval, bReturnInsertedID=True)
       return iInsertedID
 
    def vCreateNewHeader(self, _tbl_file_id,
@@ -510,7 +510,7 @@ Create new file entry in ``tbl_file`` table.
                               _tbl_header_testtoolconfiguration_ctrlfilepath,
                               _tbl_header_testtoolconfiguration_configfile,
                               _tbl_header_testtoolconfiguration_confname,
-                              
+
                               _tbl_header_testfileheader_author,
                               _tbl_header_testfileheader_project,
                               _tbl_header_testfileheader_testfiledate,
@@ -521,10 +521,10 @@ Create new file entry in ``tbl_file`` table.
                               _tbl_header_testfileheader_shortdescription,
                               _tbl_header_testexecution_useraccount,
                               _tbl_header_testexecution_computername,
-                              
+
                               _tbl_header_testrequirements_documentmanagement,
                               _tbl_header_testrequirements_testenvironment,
-                              
+
                               _tbl_header_testbenchconfig_name,
                               _tbl_header_testbenchconfig_data,
                               _tbl_header_preprocessor_filter,
@@ -701,12 +701,12 @@ Create a new header entry in ``tbl_file_header`` table which is linked with the 
    / *Condition*: required / *Type*: str /
 
    Preprocessor parameters definition.
-      
+
 **Returns:**
 
 (*no returns*)
-      """   
-      sql,sqlval ="""insert into """ + self.db + """.tbl_file_header 
+      """
+      sql,sqlval ="""insert into """ + self.db + """.tbl_file_header
                         ( file_id,
                           testtoolconfiguration_testtoolname,
                           testtoolconfiguration_testtoolversionstring,
@@ -719,7 +719,7 @@ Create a new header entry in ``tbl_file_header`` table which is linked with the 
                           testtoolconfiguration_ctrlfilepath,
                           testtoolconfiguration_configfile,
                           testtoolconfiguration_confname,
-                          
+
                           testfileheader_author,
                           testfileheader_project,
                           testfileheader_testfiledate,
@@ -730,17 +730,17 @@ Create a new header entry in ``tbl_file_header`` table which is linked with the 
                           testfileheader_shortdescription,
                           testexecution_useraccount,
                           testexecution_computername,
-                          
+
                           testrequirements_documentmanagement,
                           testrequirements_testenvironment,
-                          
+
                           testbenchconfig_name,
                           testbenchconfig_data,
-                          preprocessor_filter, 
-                          preprocessor_parameters) 
-                  values ( %s, %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s, %s, 
+                          preprocessor_filter,
+                          preprocessor_parameters)
+                  values ( %s, %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s, %s,
                            %s, %s, %s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""" , \
-                        ( _tbl_file_id, 
+                        ( _tbl_file_id,
                           _tbl_header_testtoolconfiguration_testtoolname,
                           _tbl_header_testtoolconfiguration_testtoolversionstring,
                           _tbl_header_testtoolconfiguration_projectname,
@@ -770,9 +770,9 @@ Create a new header entry in ``tbl_file_header`` table which is linked with the 
                           _tbl_header_testbenchconfig_name,
                           _tbl_header_testbenchconfig_data,
                           _tbl_header_preprocessor_filter,
-                          _tbl_header_preprocessor_parameters) 
-      self.__arExec(sql,sqlval)                                                                       
-   
+                          _tbl_header_preprocessor_parameters)
+      self.__arExec(sql,sqlval)
+
    def nCreateNewSingleTestCase(self,
                                 _tbl_case_name,
                                 _tbl_case_issue,
@@ -835,7 +835,7 @@ Create single testcase entry in ``tbl_case`` table immediately.
 
    / *Condition*: required / *Type*: str /
 
-   Component which test case is belong to. 
+   Component which test case is belong to.
 
 *  ``_tbl_case_time_start``
 
@@ -877,26 +877,26 @@ Create single testcase entry in ``tbl_case`` table immediately.
 
    / *Condition*: required / *Type*: str /
 
-   UUID of test result for linking to file in ``tbl_result`` table. 
+   UUID of test result for linking to file in ``tbl_result`` table.
 
 *  ``_tbl_file_id``
 
    / *Condition*: required / *Type*: int /
 
-   Test file ID for linking to file in ``tbl_file`` table. 
-      
+   Test file ID for linking to file in ``tbl_file`` table.
+
 **Returns:**
 
 *  ``iInsertedID``
-   
+
    / *Type*: int /
-   
+
    ID of new entry.
       """
       if _tbl_case_lastlog == "":
          _tbl_case_lastlog = None
-      sql = """insert into """ + self.db + """.tbl_case (name, issue, tcid, fid, 
-               testnumber, repeatcount, component, time_start, result_main, result_state, 
+      sql = """insert into """ + self.db + """.tbl_case (name, issue, tcid, fid,
+               testnumber, repeatcount, component, time_start, result_main, result_state,
                result_return, counter_resets, lastlog, test_result_id, file_id)
                values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
       sqlval = (_tbl_case_name,
@@ -920,8 +920,8 @@ Create single testcase entry in ``tbl_case`` table immediately.
 
    #
    # create a new test case entry:
-   # 
-   #         
+   #
+   #
    def nCreateNewTestCase(self,
                           _tbl_case_name,
                           _tbl_case_issue,
@@ -986,7 +986,7 @@ Once ``__NUM_BUFFERD_ELEMENTS_FOR_EXECUTEMANY`` is reached, the creation query i
 
    / *Condition*: required / *Type*: str /
 
-   Component which test case is belong to. 
+   Component which test case is belong to.
 
 *  ``_tbl_case_time_start``
 
@@ -1028,14 +1028,14 @@ Once ``__NUM_BUFFERD_ELEMENTS_FOR_EXECUTEMANY`` is reached, the creation query i
 
    / *Condition*: required / *Type*: str /
 
-   UUID of test result for linking to file in `tbl_result` table. 
+   UUID of test result for linking to file in `tbl_result` table.
 
 *  ``_tbl_file_id``
 
    / *Condition*: required / *Type*: int /
 
-   Test file ID for linking to file in ``tbl_file`` table. 
-      
+   Test file ID for linking to file in ``tbl_file`` table.
+
 **Returns:**
 
 (*no returns*)
@@ -1056,8 +1056,8 @@ Once ``__NUM_BUFFERD_ELEMENTS_FOR_EXECUTEMANY`` is reached, the creation query i
                 _tbl_case_counter_resets,
                 _tbl_test_result_id,
                 _tbl_file_id,
-                _tbl_case_lastlog,                
-                )         
+                _tbl_case_lastlog,
+                )
       self.lTestCases.append(sqlval)
       if len(self.lTestCases) >= CDataBase.__NUM_BUFFERD_ELEMENTS_FOR_EXECUTEMANY:
          self.vEnableForeignKeyCheck(False)
@@ -1065,7 +1065,7 @@ Once ``__NUM_BUFFERD_ELEMENTS_FOR_EXECUTEMANY`` is reached, the creation query i
          self.vEnableForeignKeyCheck(True)
          # Clear test cases list
          self.lTestCases = []
-   
+
    def __vUploadTestCaseListToDb(self, lTestCases):
       """
 Bulk insert test case results.
@@ -1082,12 +1082,12 @@ Bulk insert test case results.
 
 (*no returns*)
       """
-      sql = """insert into """ + self.db + """.tbl_case (name, issue, tcid, fid, 
-            testnumber, repeatcount, component, time_start, result_main, result_state, 
-            result_return, counter_resets, test_result_id, file_id, lastlog) 
+      sql = """insert into """ + self.db + """.tbl_case (name, issue, tcid, fid,
+            testnumber, repeatcount, component, time_start, result_main, result_state,
+            result_return, counter_resets, test_result_id, file_id, lastlog)
             values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
       self.__vExecMany(sql, lTestCases)
-       
+
    def vCreateTags(self, _tbl_test_result_id, _tbl_usr_result_tags):
       """
 Create tag entries.
@@ -1110,10 +1110,10 @@ Create tag entries.
 
 (*no returns*)
       """
-      sql,sqlval="""insert into """ + self.db + """.tbl_usr_result (test_result_id, tags) 
+      sql,sqlval="""insert into """ + self.db + """.tbl_usr_result (test_result_id, tags)
                     values (%s,%s)""", (_tbl_test_result_id , _tbl_usr_result_tags)
-      self.__arExec(sql,sqlval) 
-   
+      self.__arExec(sql,sqlval)
+
    def vSetCategory(self, _tbl_test_result_id, tbl_result_category_main):
       """
 Create category entry.
@@ -1139,8 +1139,8 @@ Create category entry.
       sql="""update """ + self.db + """.tbl_result set category_main='""" + \
                   tbl_result_category_main + """' where test_result_id='""" + \
                   _tbl_test_result_id + "'"
-      self.__arExec(sql)  
-        
+      self.__arExec(sql)
+
    def vUpdateStartEndTime(self, _tbl_test_result_id, _tbl_result_time_start, _tbl_result_time_end):
       """
 Create start-end time entry.
@@ -1169,11 +1169,11 @@ Create start-end time entry.
 
 (*no returns*)
       """
-      sql,sqlval="""update """ + self.db + """.tbl_result set time_start=%s, time_end=%s 
+      sql,sqlval="""update """ + self.db + """.tbl_result set time_start=%s, time_end=%s
                   where test_result_id='""" + _tbl_test_result_id + "'" , \
                   (_tbl_result_time_start, _tbl_result_time_end)
-      self.__arExec(sql,sqlval)         
-        
+      self.__arExec(sql,sqlval)
+
    def arGetCategories(self):
       """
 Get existing categories.
@@ -1187,19 +1187,19 @@ Get existing categories.
 *  ``arCategories``
 
    / *Type*: list /
-   
+
    List of exsiting categories.
       """
       sql="""select category from """ + self.db + """.tbl_result_categories"""
       res=self.__arExec(sql, bHasResponse=True)
       arCategories=[]
       for cat in res:
-         arCategories.append(cat[0])       
+         arCategories.append(cat[0])
       return arCategories
-    
+
    #
    # create abort reason entry
-   #    
+   #
    def vCreateAbortReason(self,
                           _tbl_test_result_id,
                           _tbl_abort_reason,
@@ -1232,14 +1232,14 @@ Create abort reason entry.
 
 (*no returns*)
       """
-      sql,sqlval = """insert into """ + self.db + """.tbl_abort 
+      sql,sqlval = """insert into """ + self.db + """.tbl_abort
                            (test_result_id, abort_reason, msg_detail)
                            values (%s,%s,%s)""" , (_tbl_test_result_id,
                                                    _tbl_abort_reason,
                                                    _tbl_abort_message,
-                                                   )                         
-      self.__arExec(sql,sqlval)      
-   
+                                                   )
+      self.__arExec(sql,sqlval)
+
    def vCreateReanimation(self, _tbl_test_result_id, _tbl_num_of_reanimation):
       """
 Create reanimation entry.
@@ -1262,7 +1262,7 @@ Create reanimation entry.
 
 (*no returns*)
       """
-      sql, sqlval = """update """ + self.db + """.tbl_result set num_of_reanimation=%s where 
+      sql, sqlval = """update """ + self.db + """.tbl_result set num_of_reanimation=%s where
                         test_result_id='""" + _tbl_test_result_id + "'", (_tbl_num_of_reanimation)
       self.__arExec(sql, sqlval)
 
@@ -1290,7 +1290,7 @@ Create CCR data per test case.
       """
       sql = """insert into """ + self.db + """.tbl_ccr (test_case_id, timestamp, MEM, CPU) values(%s,%s,%s,%s)"""
       sqlVals = []
-      for row in lCCRdata: 
+      for row in lCCRdata:
          row.insert(0, _tbl_test_case_id)
          sqlVals.append(tuple(row))
       self.__vExecMany(sql, sqlVals)
@@ -1318,10 +1318,10 @@ Finish upload:
          self.vEnableForeignKeyCheck(False)
          self.__vUploadTestCaseListToDb(self.lTestCases)
          self.vEnableForeignKeyCheck(True)
-      sql="""update """ + self.db + """.tbl_result set result_state="new report" 
+      sql="""update """ + self.db + """.tbl_result set result_state="new report"
                   where test_result_id='""" + _tbl_test_result_id + "'"
-      self.__arExec(sql)  
-          
+      self.__arExec(sql)
+
    def vUpdateEvtbls(self):
       """
 Call ``update_evtbls`` stored procedure.
@@ -1334,9 +1334,9 @@ Call ``update_evtbls`` stored procedure.
 
 (*no returns*)
       """
-      sql="""call """ + self.db + """.update_evtbls();""" 
-      self.__arExec(sql)   
- 
+      sql="""call """ + self.db + """.update_evtbls();"""
+      self.__arExec(sql)
+
    def vUpdateEvtbl(self, _tbl_test_result_id):
       """
 Call ``update_evtbl`` stored procedure to update provided ``test_result_id``.
@@ -1354,8 +1354,8 @@ Call ``update_evtbl`` stored procedure to update provided ``test_result_id``.
 (*no returns*)
       """
       sql="""call """ + self.db + """.update_evtbl('%s');"""%_tbl_test_result_id
-      self.__arExec(sql)  
-  
+      self.__arExec(sql)
+
    def vEnableForeignKeyCheck(self, enable=True):
       """
 Switch ``foreign_key_checks`` flag.
@@ -1373,8 +1373,8 @@ Switch ``foreign_key_checks`` flag.
 (*no returns*)
       """
       sql = "SET FOREIGN_KEY_CHECKS=%s;" %str(int(enable))
-      self.__arExec(sql)        
-       
+      self.__arExec(sql)
+
    def sGetLatestFileID(self, _tbl_test_result_id):
       """
 Get latest file ID from ``tbl_file`` table.
@@ -1448,7 +1448,7 @@ Update test result end time.
       """
       sql = "UPDATE %s.tbl_result SET time_end='%s' WHERE test_result_id='%s'"%(self.db, _tbl_result_time_end, _tbl_test_result_id)
       self.__arExec(sql)
-   
+
    def bExistingResultID(self, _tbl_test_result_id):
       """
 Verify the given test result UUID is existing in ``tbl_result`` table or not.
@@ -1463,7 +1463,7 @@ Verify the given test result UUID is existing in ``tbl_result`` table or not.
 
 **Returns:**
 
-*  ``bExisting`` 
+*  ``bExisting``
 
    / *Type*: bool /
 
@@ -1498,5 +1498,5 @@ Get the project and version_sw information of given `test_result_id`
       res = self.__arExec(sql, bHasResponse=True)
       if res and len(res)>0:
          return res[0]
-      
+
       return None
