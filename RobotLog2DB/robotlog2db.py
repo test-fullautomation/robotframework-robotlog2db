@@ -541,8 +541,11 @@ Format the given time string to TestResultWebApp's format for importing to db.
 
    TestResultWebApp's time as format ``%Y-%m-%d %H:%M:%S``.
    """
-
-   sFormatedTime = sTime[0:4]+"-"+sTime[4:6]+"-"+sTime[6:]
+   try:
+      sFormatedTime = sTime[0:4]+"-"+sTime[4:6]+"-"+sTime[6:]
+   except Exception as reason:
+      Logger.log_error(f"Cannot convert given time '{sTime}' to TestResultWebApp's time format.\nReason: {reason}",
+                        fatal_error=True)
    return sFormatedTime
 
 def __process_commandline():
@@ -1204,12 +1207,24 @@ Flow to import Robot results to database:
       _tbl_result_version_hardware  = sVersionHW
       _tbl_result_version_sw_test   = sVersionTest
 
+      # Process start/end time info
+      sSuiteStarttime = result.suite.starttime
+      sSuiteEndtime   = result.suite.endtime
+
+      # Get start and end time of suite a as min and max time incase multiple suite results
+      if (len(sources) > 1) or (len(result.suite.suites) > 0):
+         sSuiteStarttime = min([suite.starttime for suite in result.suite.suites])
+         sSuiteEndtime   = max([suite.endtime for suite in result.suite.suites])
+
+      _tbl_result_time_start = format_time(sSuiteStarttime)
+      _tbl_result_time_end   = format_time(sSuiteEndtime)
+
       # Set version as start time of the execution if not provided in metadata
       # Format: %Y%m%d_%H%M%S
       if _tbl_result_version_sw_target=="":
          bUseDefaultVersionSW = True
          _tbl_result_version_sw_target = re.sub(r'(\d{8})\s(\d{2}):(\d{2}):(\d{2})\.\d+',
-                                                r'\1_\2\3\4', result.suite.starttime)
+                                                r'\1_\2\3\4', sSuiteStarttime)
       if not args.append:
          Logger.log(f"Set project/variant to '{sVariant}' ({sMsgVarirantSetBy})")
          Logger.log(f"Set version_sw to '{_tbl_result_version_sw_target}' ({sMsgVersionSWSetBy})")
@@ -1224,14 +1239,6 @@ Flow to import Robot results to database:
          _tbl_test_result_id = str(uuid.uuid4())
          if args.append:
             Logger.log_error("'--append' argument should be used in combination with '--UUID <UUID>` argument.", fatal_error=True)
-
-      # Process start/end time info
-      if len(sources) > 1:
-         _tbl_result_time_start = format_time(min([suite.starttime for suite in result.suite.suites]))
-         _tbl_result_time_end   = format_time(max([suite.endtime for suite in result.suite.suites]))
-      else:
-         _tbl_result_time_start = format_time(result.suite.starttime)
-         _tbl_result_time_end   = format_time(result.suite.endtime)
 
       # Process other info
       _tbl_result_interpretation = ""
