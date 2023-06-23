@@ -548,6 +548,45 @@ Format the given time string to TestResultWebApp's format for importing to db.
                         fatal_error=True)
    return sFormatedTime
 
+def retrieve_result_starttime(objResult):
+   lStarttime = []
+   # Try to get starttime from root TestSuite to children TestCase
+   if type(objResult).__name__ == "TestSuite":
+      if objResult.starttime:
+         return objResult.starttime
+      elif len(objResult.suites) > 0:
+         lStarttime = [suite_starttime for suite in objResult.suites if (suite_starttime:=retrieve_result_starttime(suite)) is not None]
+      else:
+         lStarttime = [test_starttime for test in objResult.tests if (test_starttime:=retrieve_result_starttime(test)) is not None]
+   elif type(objResult).__name__ == "TestCase":
+      if objResult.starttime:
+         return objResult.starttime
+
+   if len(lStarttime):
+      return min(lStarttime)
+
+   return None
+
+def retrieve_result_endtime(objResult):
+   lEndtime = []
+   # Try to get endtime from root TestSuite to children TestCase
+   if type(objResult).__name__ == "TestSuite":
+      if objResult.endtime:
+         return objResult.endtime
+      elif len(objResult.suites) > 0:
+         lEndtime = [suite_endtime for suite in objResult.suites if (suite_endtime:=retrieve_result_endtime(suite)) is not None]
+      else:
+         lEndtime = [test_endtime for test in objResult.tests if (test_endtime:=retrieve_result_endtime(test)) is not None]
+   elif type(objResult).__name__ == "TestCase":
+      if objResult.endtime:
+         return objResult.endtime
+
+   if len(lEndtime):
+      return max(lEndtime)
+
+   return None
+
+
 def __process_commandline():
    """
 Process provided argument(s) from command line.
@@ -743,8 +782,15 @@ Process to the lowest suite level (test file):
       if dConfig != None and 'tester' in dConfig:
          _tbl_file_tester_account = dConfig['tester']
       _tbl_file_tester_machine = metadata_info['machine']
-      _tbl_file_time_start     = format_time(suite.starttime)
-      _tbl_file_time_end       = format_time(suite.endtime)
+
+      sSuiteStarttime = retrieve_result_starttime(suite)
+      sSuiteEndtime   = retrieve_result_endtime(suite)
+      if not sSuiteStarttime:
+         Logger.log_error(f"Could not retieve start time of suite '{suite.name}'.")
+      if not sSuiteEndtime:
+         Logger.log_error(f"Could not retieve end time of suite '{suite.name}'.")
+      _tbl_file_time_start     = format_time(sSuiteStarttime)
+      _tbl_file_time_end       = format_time(sSuiteEndtime)
 
       # Process component information if not provided in metadata
       if metadata_info['component'] == '':
@@ -1208,23 +1254,28 @@ Flow to import Robot results to database:
       _tbl_result_version_sw_test   = sVersionTest
 
       # Process start/end time info
-      sSuiteStarttime = result.suite.starttime
-      sSuiteEndtime   = result.suite.endtime
+      sExecutionStarttime = retrieve_result_starttime(result.suite)
+      sExecutionEndtime   = retrieve_result_endtime(result.suite)
+      if not sExecutionStarttime:
+         Logger.log_error(f"Could not retieve execution start time."+
+                           "\nPlease use rebot with option '--starttime timestamp' when merging/combining result files."+
+                           "\nOr rerun Robotframework testcase(s) to get proper *.xml result file.",
+                           fatal_error=True)
+      if not sExecutionEndtime:
+         Logger.log_error(f"Could not retieve execution end time."+
+                           "\nPlease use rebot with option '--endtime timestamp' when merging/combining result files."+
+                           "\nOr rerun Robotframework testcase(s) to get proper *.xml result file",
+                           fatal_error=True)
 
-      # Get start and end time of suite a as min and max time incase multiple suite results
-      if (len(sources) > 1) or (len(result.suite.suites) > 0):
-         sSuiteStarttime = min([suite.starttime for suite in result.suite.suites])
-         sSuiteEndtime   = max([suite.endtime for suite in result.suite.suites])
-
-      _tbl_result_time_start = format_time(sSuiteStarttime)
-      _tbl_result_time_end   = format_time(sSuiteEndtime)
+      _tbl_result_time_start = format_time(sExecutionStarttime)
+      _tbl_result_time_end   = format_time(sExecutionEndtime)
 
       # Set version as start time of the execution if not provided in metadata
       # Format: %Y%m%d_%H%M%S
       if _tbl_result_version_sw_target=="":
          bUseDefaultVersionSW = True
          _tbl_result_version_sw_target = re.sub(r'(\d{8})\s(\d{2}):(\d{2}):(\d{2})\.\d+',
-                                                r'\1_\2\3\4', sSuiteStarttime)
+                                                r'\1_\2\3\4', sExecutionStarttime)
       if not args.append:
          Logger.log(f"Set project/variant to '{sVariant}' ({sMsgVarirantSetBy})")
          Logger.log(f"Set version_sw to '{_tbl_result_version_sw_target}' ({sMsgVersionSWSetBy})")
