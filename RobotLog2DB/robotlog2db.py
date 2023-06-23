@@ -549,6 +549,24 @@ Format the given time string to TestResultWebApp's format for importing to db.
    return sFormatedTime
 
 def retrieve_result_starttime(objResult):
+   """
+Retrieve starttime infomration from given result object (TestSuite or TestCase).
+In case the starttime in given suite is 'N/A', it will try to get this information from its children suite/test.
+
+**Arguments:**
+
+*  ``stime``
+
+   / *Condition*: required / *Type*: `TestSuite` or `TestCase` object /
+
+   Result object to retrieve starttime.
+
+**Returns:**
+
+*  / *Type*: str /
+
+   Start time of given result.
+   """
    lStarttime = []
    # Try to get starttime from root TestSuite to children TestCase
    if type(objResult).__name__ == "TestSuite":
@@ -568,6 +586,24 @@ def retrieve_result_starttime(objResult):
    return None
 
 def retrieve_result_endtime(objResult):
+   """
+Retrieve endtime infomration from given result object (TestSuite or TestCase).
+In case the endtime in given suite is 'N/A', it will try to get this information from its children suite/test.
+
+**Arguments:**
+
+*  ``stime``
+
+   / *Condition*: required / *Type*: `TestSuite` or `TestCase` object /
+
+   Result object to retrieve endtime.
+
+**Returns:**
+
+*  / *Type*: str /
+
+   End time of given result.
+   """
    lEndtime = []
    # Try to get endtime from root TestSuite to children TestCase
    if type(objResult).__name__ == "TestSuite":
