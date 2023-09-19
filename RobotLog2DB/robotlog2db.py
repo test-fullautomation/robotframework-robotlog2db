@@ -813,7 +813,7 @@ Process to the lowest suite level (test file):
    else:
       # File metadata
       metadata_info = process_metadata(suite.metadata, root_metadata)
-      _tbl_file_name = suite.source
+      _tbl_file_name = str(suite.source)
       _tbl_file_tester_account = metadata_info['tester']
       if dConfig != None and 'tester' in dConfig:
          _tbl_file_tester_account = dConfig['tester']
