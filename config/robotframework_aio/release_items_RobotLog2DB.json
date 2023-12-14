@@ -45,15 +45,7 @@
 # ------------------------------------------
 
    "RELEASES"  : {
-                   "0.9." : [
-                              "RobotLog2DB change 0.9 A",
-                              "RobotLog2DB change 0.9 B",
-                              "RobotLog2DB change 0.9 X"
-                            ],
                    "0.10." : [
-                               "RobotLog2DB change 0.10 A",
-                               "RobotLog2DB change 0.10 B",
-                               "RobotLog2DB change 0.10 X"
                              ]
                  }
 }
