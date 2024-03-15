@@ -46,6 +46,11 @@
 
    "RELEASES"  : {
                    "0.10." : [
+                             ],
+                   "0.11." : [
+"
+Support the new log level *USER* of Robotframework
+"
                              ]
                  }
 }
