@@ -1,6 +1,6 @@
 # **************************************************************************************************************
 #
-#  Copyright 2020-2023 Robert Bosch GmbH
+#  Copyright 2020-2026 Robert Bosch GmbH
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -18,5 +18,5 @@
 #
 # Version and date of RobotLog2DB
 #
-VERSION      = "1.5.4"
-VERSION_DATE = "04.02.2025"
+VERSION      = "1.6.0"
+VERSION_DATE = "24.02.2026"
